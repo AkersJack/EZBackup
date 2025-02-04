@@ -10,7 +10,13 @@
     #define HAVE_SENDFILE 1
 #else
     #define HAVE_SENDFILE 0
+
 #endif
+
+#if defined(__APPLE__)
+    #define explicit_bzero(ptr, size)   memset_s(ptr, size, 0, size)
+#endif
+
 
 #include "client.h"
 #include <fcntl.h>
