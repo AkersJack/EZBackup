@@ -30,7 +30,6 @@
 #include <sys/socket.h> 
 #include <netdb.h>
 #include <unistd.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <arpa/inet.h> 
 #include <cjson/cJSON.h>
@@ -64,6 +63,7 @@ into a send?
 
 
 
+
                         
 
 
@@ -74,10 +74,10 @@ struct Message{
     uint32_t operation; // Operation Type (e.g., FILE_TRANSFER, RECOVERY)
     uint32_t size; // Size of the payload 
     uint32_t jsize; // Size of json file 
-    uint64_t fsize; // Size of the file/data
     // char payload[]; // json data (contains info about the file or other info)
     char *data;
 };
+
 
 struct FileBuffer{
     uint64_t size; // Size of the buffer (set after allocation)
@@ -91,23 +91,6 @@ typedef enum{
     MESSAGE, 
 }Operation; 
 
-
-#if !HAVE_SENDFILE
-/* custom sendfile implementation if not available 
- *
- * From MAN: 
-  ssize_t sendfile(int out_fd, int in_fd, off_t *_Nullable offset, size_t count); 
-
-
-
-*/
-
-ssize_t sendfile(int out_fd, int in_fd, off_t *offset, size_t count){
-    
-    return 0; 
-}
-
-#endif 
 
 typedef struct{
     uint32_t upper;  // Upper half of a uint64_t
@@ -476,7 +459,6 @@ void* handle_file_transfer(void *sock_ptr, void* message_ptr){
                          
 
 
-    data_length = 0; 
     do{
         bzero(user_input_buffer, user_input_size);
         printf("Enter File Location: ");

@@ -17,6 +17,8 @@
 
 */
 
+int archive_stream_files(const char **files, int sock, char* options, int num_files);
+
 
 
 

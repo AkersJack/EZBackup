@@ -4,7 +4,6 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
 
 
 /*
@@ -24,6 +23,10 @@
  * options -> What format and options to use for the archive (0 is defaula
  * sock
 */ 
+
+size_t socket_write(struct archive* a, void *client_data, const void *buffer, size_t length){
+    
+}
 
 // Custom write callback for streaming over socket
 int archive_stream_files(const char **files, int sock, char* options, int num_files){ 
@@ -45,12 +48,8 @@ int archive_stream_files(const char **files, int sock, char* options, int num_fi
         return 1; 
     }
 
-    
-    // archive_write_open(a, &sock, NULL, (archive_write_callback *)send, NULL); 
-    if(archive_write_open_fd(a, sock) != ARCHIVE_OK){
-        fprintf(stderr, "Failed to open archive: %s\n", archive_error_string(a));
-        return -1; 
-    }
+    // Socket write is what is used to send the files/archive (sets socket as write dest.)  
+    archive_write_open(a, &sock, NULL, socket_write, NULL); 
     
 
     for (int i = 0; i < num_files; i++){
@@ -83,12 +82,12 @@ int archive_stream_files(const char **files, int sock, char* options, int num_fi
             archive_write_data(a, buff, bytes_read); 
         }
         
-        // off_t offset = 0; 
-        // ssize_t sent = sendfile(socket, file_fd, &offset, st.st_size);
-        
         // Cleanup 
         fclose(file); 
         archive_entry_free(entry); 
+
+
+
 
     }
 

@@ -17,8 +17,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <openssl/md5.h>
-#include <archive.h> 
-#include <archive_entry.h>
 
 #if defined(__APPLE__)
     #define explicit_bzero(ptr, size)   memset_s(ptr, size, 0, size)
