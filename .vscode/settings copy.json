@@ -1,0 +1,16 @@
+{
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "files.associations": {
+                "stdio.h": "c",
+                "random": "c",
+                "ostream": "c",
+                "array": "c",
+                "string_view": "c",
+                "format": "c",
+                "initializer_list": "c",
+                "span": "c",
+                "archive_entry.h": "c"
+        },
+        "C_Cpp.default.compilerPath": "/usr/bin/gcc",
+        "C_Cpp.autocompleteAddParentheses": true
+}

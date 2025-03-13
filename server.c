@@ -14,9 +14,21 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <sys/time.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <openssl/md5.h>
+#include <archive.h> 
+#include <archive_entry.h>
+#include <math.h>
+
+#if defined(__APPLE__)
+    #define explicit_bzero(ptr, size)   memset_s(ptr, size, 0, size)
+#endif
 
 /* 
 
+Current Compile command: 
+gcc -g -D TEST_SERVER server.c -o server -l cjson -l crypto -l archive
 
 Compile the server 
 gcc -g -D TEST_SERVER server.c -o server 
@@ -40,21 +52,7 @@ getnameinfo()
 https://man7.org/linux/man-pages/man3/getnameinfo.3.html
 
 
-recvfrom()
-https://man7.org/linux/man-pages/man3/recvfrom.3p.html
-
-getsockname() 
-https://man7.org/linux/man-pages/man2/getsockname.2.html
-
-
-sendfile() 
-https://man7.org/linux/man-pages/man2/sendfile.2.html
-
-Socket Domains: 
-    - For IPV4 we use AF_INET 
-    - For IPV6 we use AF_INET6 
-
-
+recvfrom()server_NT.c
 
 Socket Types: 
     SOCK_STREAM
@@ -106,11 +104,17 @@ select()
 
 
 #define BUF_SIZE 1024
-#define MAX_BUFFER_SIZE 1048576 // 1 megabyte 
+// #define MAX_BUFFER_SIZE 1048576 // 1 megabyte (apparently too big and inefficient)
 // #define MAX_BUFFER_SIZE 4096 //  
-#define NUM_THREADS 2 // Defines the number of threads for the threadpool default is 16
+// #define MAX_BUFFER_SIZE 65536 // 64 KB is apparently more optimal 
+#define MAX_BUFFER_SIZE 131072 // 128 KB (same as the client buffer)
 
 
+// Flags 
+int w_flag = 0;  // write
+int l_flag  = 0; // location (default is local dir but soon may be the coppied file location)
+int p_flag = 0; // port
+char *write_location; // Where to write files (if writing files)
 
 // Used as a generic to return to the proper operation handler 
 typedef void* (*OperationFunc)(void* , void*); 
@@ -123,31 +127,114 @@ typedef enum{
     MESSAGE, 
 }Operation; 
 
-// Task Structure 
-typedef struct Task{
-    void (*function)(void*); // A pointer to a function that returns void and takes 1 void pointer argument 
-    void *argument; // Function argument
-    struct Task *next; // Next task in queue
-    
-
-}Task;
 
 struct MessageHeader{
     uint32_t operation; // Type of operation
     uint32_t size; // Size of the data coming in 
     uint32_t jsize; // Size of json data
-    uint32_t fsize; // size of file/data
+    uint64_t dsize; // size of file/data
     
 };
 
 struct Message{
-    uint32_t operation; // Operation Type (e.g., FILE_TRANSFER, RECOVERY)
-    uint32_t size; // Size of the entire payload 
-    uint32_t jsize; // Size of json file 
-    uint32_t fsize; // Size of the file/data
-    // char payload[]; // File data and json data
-    char *data;
+        uint32_t operation; // Operation Type (e.g., FILE_TRANSFER, RECOVERY)
+        uint32_t size; // Total size of the payload/message 
+        uint32_t dsize; // Data size (size of data associated with this packet)
+        uint32_t jsize; // Size of json file (if included)
+        uint64_t total_transfered; // Total amount of data transfered (can be NULL)
+        char *data; // JSON data but can be NULL for no data
 };
+
+// Need to free the hash
+unsigned char* genHash(char *buff, size_t buff_size){
+    unsigned char *hash = malloc(MD5_DIGEST_LENGTH); 
+    
+    MD5_CTX md5; 
+    
+    
+
+    MD5_Init(&md5);
+    
+    MD5_Update(&md5, buff, buff_size); // Try this if slow we can split it into pieces
+    // while(buff_size > 0){
+    //     MD5_update(&md5, buff + offset, hbuff_size); 
+    //     offset += hbuff_size;
+    //     buff_size -= hbuff_size; 
+    // }
+    
+    MD5_Final(hash, &md5);
+    
+
+    
+    return hash;
+}
+
+
+// Generate MD5 File hash (need to free the returned value)
+unsigned char* genHash_file(const char *fpath){
+    FILE *fp = fopen(fpath, "rb");
+    if(fp == NULL){
+        perror("Error opening file");
+        exit(1);
+    }
+
+    unsigned char *hash = malloc(MD5_DIGEST_LENGTH); 
+    
+    unsigned char buffer[4096];
+    MD5_CTX md5; 
+    size_t bytes; 
+    
+
+    MD5_Init(&md5);
+    
+    while((bytes = fread(buffer, 1, sizeof(buffer), fp)) != 0){
+        MD5_Update(&md5, buffer, bytes);
+    }
+    MD5_Final(hash, &md5);
+    
+    fclose(fp);
+    
+    return hash;
+    
+}
+
+typedef struct{
+        char units[3];
+        double size; 
+
+}sizeObject;
+
+sizeObject sizeFormat(long double num){
+        sizeObject sObj = {"", 0};
+        char units[][3] = {"B", "KB", "MB", "GB", "TB", "PB"}; 
+        long double sizes[] = {1, 1024, pow(1024, 2), pow(1024, 3), pow(1024, 4), pow(1024, 5)}; 
+        for(int i = 1; i < sizeof(sizes); i++){
+                if (sizes[i] > num){
+                        sObj.size = num / sizes[i - 1];
+                        strncpy(sObj.units, units[i - 1], 2);
+                        sObj.units[sizeof(sObj.units) - 1] = '\0';
+                        break;
+                }
+        }
+        
+        return sObj; 
+}
+
+
+// Create a path to save the file to (need to free path)
+char* savePath(const char* fname,  const char* path){
+    size_t path_len = strlen(fname) + strlen(path);
+    char *save_location = malloc(path_len + 2); // For null terminator and possibly extra slash
+    bzero(save_location, path_len + 2);
+    if(path[strlen(path) - 1] == '/'){
+        snprintf(save_location, path_len + 1, "%s%s", path, fname); 
+    }else{
+        snprintf(save_location, path_len + 2, "%s/%s", path, fname);      
+    }
+
+        
+    return save_location;
+}
 
 // These handles should be made private (static) as they are different than the clients handles
 // TODO: Implement this 
@@ -155,6 +242,12 @@ void* handle_message_transfer(void *sock_ptr, void *message_ptr){
     printf("Need to implement message transfer\n");
 
 }
+
+uint64_t combine_u32(uint32_t upper, uint32_t lower){
+    uint64_t val = ((uint64_t)upper << 32) | lower; 
+    return val; 
+
+};
 
 
 // Server-side check for incoming messages
@@ -186,126 +279,293 @@ int check_server_socket(int server_socket, int timeout_seconds){
     
 }
 
+int socket_open_cb(struct archive *a, void *client_data){
+    int sock = *((int *)client_data);
+    printf("Socket open CB \n");
+    return ARCHIVE_OK;
+
+}
+
+struct socket_src{
+    int sock; 
+    char buffer[131072]; 
+};
+
+la_ssize_t socket_read_cb(struct archive *a, void *client_data, const void **buff){
+    struct socket_src *src = client_data; 
+
+    // printf("Socket read CB \n");
+    
+    ssize_t bytes_read = read(src->sock, src->buffer, sizeof(src->buffer));
+    if(bytes_read < 0){
+        perror("read"); 
+        return -1; // Signal error
+    }
+    
+    *buff = src->buffer; 
+    return bytes_read; 
+
+}
+
+// Could use this to close the socket (probably won't as we re-use the socket again)
+int socket_close_cb(struct archive *a, void *client_data){
+    int sock = *((int *)client_data);
+    printf("Socket close CB \n");
+    return ARCHIVE_OK;
+
+}
+
+
+ssize_t exactRead(int sock, void *buffer, size_t length){
+    size_t total_read = 0; 
+    while (total_read < length){
+        ssize_t bytes_read = recv(sock, buffer + total_read, length - total_read, 0);
+        // ssize_t bytes_read = read(sock, buffer + total_read, length - total_read);
+        if(bytes_read <= 0){
+            return bytes_read; // Error or connection closed
+        }
+        total_read += bytes_read;
+    }
+    return total_read;
+}
+
+ssize_t custom_write(FILE *fp, void *buffer, size_t length){
+    size_t written = fwrite(buffer, 1, length, fp);
+    if(written != length){
+        perror("Write error");
+        return -1; 
+    }
+    
+
+    return written;
+
+}
+
+
+void* handle_file_transfer(void *sock_ptr, void *message_ptr){
+    int sock = *(int *)sock_ptr; 
+    struct Message *message = (struct Message *)message_ptr; 
+    char *buffer; 
+    char basebuff[8];
+    uint32_t eof = 0; 
+    uint64_t total_size = 0; 
+    uint64_t total_read = 0; 
+    uint32_t length; 
+    uint64_t headsize = 0; 
+
+    char output_filename[] = "./testOutput_Server.tar.zst";
+
+    FILE *output_file = fopen(output_filename, "wb");
+    
+    if(output_file == NULL){
+        fprintf(stderr, "Failed to open output file %s\n", output_filename);
+        exit(EXIT_FAILURE);
+    }
+    
+    sizeObject sizeObj_1; 
+    sizeObject sizeObj_2; 
+    while(eof != 1234567890){
+        size_t bytes_read = exactRead(sock, &basebuff, 8);
+        memcpy(&length, basebuff, 4);
+        memcpy(&eof, basebuff + 4, 4);
+        
+        length = ntohl(length); 
+        eof = ntohl(eof);
+        
+        headsize += 8; 
+        buffer = malloc(length); 
+        
+        ssize_t numbytes = exactRead(sock, buffer, length);
+        total_read += numbytes; 
+        
+        size_t written = custom_write(output_file, buffer, length);
+
+        if(written == -1){
+            perror("write");
+            free(buffer); 
+            buffer = NULL;
+            fclose(output_file);
+            exit(EXIT_FAILURE);
+
+        }
+        
+        // printf("Received: %ld\n", written);
+        total_size += written; 
+        sizeObj_1 = sizeFormat(((long double)total_size));
+        sizeObj_2 = sizeFormat(((long double)total_read));
+        printf("Total Written: %.2lf %s\t Total Received: %.2lf\n", sizeObj_1.size, sizeObj_1.units, sizeObj_2.size, sizeObj_2.units);
+        free(buffer); 
+        buffer = NULL;
+        
+
+    }
+    
+    fclose(output_file);
+    
+    printf("Total Size: %lu\n", total_size);
+
+    printf("Received File\n");
+    free(buffer);
+    buffer = NULL;
+    return 0;
+}
+
+
+
+
 
 // int handle_file_transfer(void *sock, struct Message *mess, char *buff){
 // int handle_file_transfer(void *sock, struct MessageHeader *mess, char *buff){
 // At this point the header should have been fully read and message_ptr contains that data
-void* handle_file_transfer(void *sock_ptr, void *message_ptr){
+void* handle_file_transfer2(void *sock_ptr, void *message_ptr){
     int client_socket = *(int *)sock_ptr; 
-    struct Message *message = (struct Message *) message_ptr; 
-    // Check if a null-terminating character exists if not add one 
-    char *jstring = malloc(message->jsize); 
-    if(!jstring){
-        perror("Failed to allocate memory");
-        exit(1);
-    }
-    bzero(jstring, message->jsize);
-    memcpy(jstring, message->data, message->jsize);
-    if(jstring[message->jsize] != '\0'){
-        jstring[message->jsize] = '\0';
-    }
-    // char *new_buffer = realloc(buffer, message->size); 
-    ssize_t numbytes; 
-    uint32_t buffsize = BUF_SIZE; // Holds the buffsize up to a certain point
-    int header_csize = (BUF_SIZE - (sizeof(struct MessageHeader) + message->jsize)); // Size of file data in first header
-
-
-    // printf("JSON String: %s\n", jstring);
-
-    // cJSON *json_object = cJSON_Parse(jstring);
-    // Just for testing
-    //printf("File Data: %s\n", file_data);
-    // Write to file here
-
-    // Parse the json string and turn it into a json object (REMEMBER: DELETE THIS OBJECT WHEN DONE!)
-
-    int counter = 0; // Counter for size
-
-    // cJSON_Delete(json_object);
-    // json_object = NULL; 
-    bzero(jstring, message->jsize); 
-    free(jstring); 
-    jstring = NULL;
-
-    
-    // Allocate receive buffer
-    size_t buffer_size = (message->fsize < MAX_BUFFER_SIZE) ? message->fsize : MAX_BUFFER_SIZE;
-    char *buffer = malloc(buffer_size);
-    bzero(buffer, buffer_size);
-    if (!buffer) {
-        perror("Failed to allocate buffer");
-        return NULL;
-    }
-    
-    // Track total bytes received 
-    size_t total_received = 0; 
+    struct Message *message = (struct Message *)message_ptr; 
+    // struct archive_entry *entry;  
+    struct archive_entry *entry = archive_entry_new();
     
 
-    // Receive loop 
-    while (total_received < message->fsize){
-        // Calculate remaining time to receive 
-        size_t remaining = message->fsize - total_received; 
-        size_t to_receive =  (remaining < buffer_size) ? remaining : buffer_size;
+    struct socket_src client_sock; 
+    client_sock.sock = client_socket;
+    
+    
+    int r;
+
+
+    // Archive writer
+    struct archive *aw = archive_write_new();
+    if(!aw){
+        fprintf(stderr, "Failed to create archive writer\n"); 
+        exit(EXIT_FAILURE); 
+    }
+    
+    // Archive reader
+    struct archive *a = archive_read_new(); 
+    if(!a){
+        fprintf(stderr, "Failed to create archive reader\n"); 
+        exit(EXIT_FAILURE); 
+    }
+    
+
+
+
+    // Support all available archive formats and filters 
+    archive_read_support_compression_all(a); 
+    archive_read_support_format_all(a);
+    // archive_read_support_format_raw(a);
+    // archive_read_support_filter_none(a);
+
+    if(archive_read_open(a, &client_sock, socket_open_cb, socket_read_cb, socket_close_cb) != ARCHIVE_OK){
+
+        fprintf(stderr, "Failed to open archive: %s\n", archive_error_string(a));
+        archive_read_free(a); 
+        exit(EXIT_FAILURE);
+    }
+
+    // if(archive_write_set_format_raw(aw) != ARCHIVE_OK){
+    //     fprintf(stderr, "%s\n", archive_error_string(aw));
+    //     archive_write_free(aw);
+    //     exit(EXIT_FAILURE);
+    // }
+    // Using GNUtar
+    if(archive_write_set_format_gnutar(aw) != ARCHIVE_OK){
+        fprintf(stderr, "%s\n", archive_error_string(aw)); 
+        archive_write_free(a); 
+        exit(EXIT_FAILURE);
+    }
+    // archive_write_set_format_raw(aw);
+    // archive_write_add_filter_none(aw);
+    
+    if(archive_write_open_filename(aw, "./testwrite2.tar.zst") != ARCHIVE_OK){
+        fprintf(stderr, "archive_write_open_filename failed: %s\n", archive_error_string(aw));
+    
+        archive_write_free(aw);
+        archive_read_free(a); 
+        exit(EXIT_FAILURE);
+    }
+    
+    // archive_entry_set_pathname(entry, "archive.zst"); 
+    // archive_entry_set_filetype(entry, AE_IFREG);
+    // archive_entry_set_size(entry, 10240000);
+    
+    // if(archive_write_header(aw, entry) != ARCHIVE_OK){
+    //     fprintf(stderr, "%s\n", archive_error_string(aw)); 
+    //     archive_write_free(aw);
+    //     archive_read_free(a);
+    //     exit(EXIT_FAILURE);
+    // }
+    
+
+
+    // Loop through the archive entries
+    while(archive_read_next_header(a, &entry) == ARCHIVE_OK){
+        printf("Filename: %s\n", archive_entry_pathname(entry));
+        // We are going to skip the data for this entry for now 
+        // archive_read_data_skip(a);
         
-        // wait for socket to be ready 
-        fd_set read_fds; 
-        struct timeval timeout; 
-        FD_ZERO(&read_fds); 
-        FD_SET (client_socket, &read_fds); 
-        timeout.tv_sec = 30; // 30 sec timeout
-        timeout.tv_usec = 0; 
-        
-        int select_result = select(client_socket + 1, &read_fds, NULL, NULL, &timeout); 
-        if(select_result <= 0){
-            perror("select() failed or timed out"); 
-            free(buffer); 
-            return NULL; 
-        }
-        // Receive data in chunks 
-        size_t bytes_received = 0; 
-        while (bytes_received < to_receive){
-            check_server_socket(client_socket, 1);
-            if (total_received >= message->fsize) { // Check inside the loop
-                break; // Exit the inner loop if done
-            }
-            ssize_t result = recv(client_socket, buffer + bytes_received, to_receive - bytes_received, 0); 
-            if (result <= 0){
-                if (result == 0){
-                    printf("Connection closed by peer\n"); 
-                }else{
-                    perror("recv() failed"); 
-                }
-                free(buffer); 
-                buffer = NULL; 
-                return NULL;  
-            }
-            
-            bytes_received += result; 
-            total_received += result; 
-            // printf("bytes_received: %lu\n", bytes_received);
-
+        if(archive_write_header(aw, entry) != ARCHIVE_OK){
+           fprintf(stderr, "archive_write_header failed: %s\n", archive_error_string(aw)); 
         }
         
-        // Process the received chunk here (write to file)
+        char bufft[102400];
+        ssize_t bytes_read; 
+        while((bytes_read = archive_read_data(a, bufft, 102400)) > 0){
+            ssize_t bytes_written = archive_write_data(aw, bufft, bytes_read);
+            if (bytes_written != bytes_read){
+                fprintf(stderr, "archive_write_data failed: %s\n", archive_error_string(aw));
+                break;
+            }
+        }
+
+        /* Finalize the entry in the output archive */
+        // if(archive_write_finish_entry(aw) != ARCHIVE_OK){
+        //     fprintf(stderr, "archive_write_finished_entry failed: %s\n", archive_error_string(aw)); 
+        //     archive_write_free_(aw); 
+        //     archive_read_free(a); 
+        //     exit(EXIT_FAILURE);
+        // }
+                                                                            
         
-        // total_received += bytes_received; 
-        printf("Progress: %zu/%u bytes\n", total_received, message->fsize);
+        
+
+
+        
+        // int fd = open("./test_write", O_WRONLY | O_CREAT | O_TRUNC, 0644); // Create a file with perms 644
+        // if (fd < 0){
+        //     perror("open"); 
+        //     fprintf(stderr, "Error opening destination file: %s (%s)\n", archive_entry_pathname(entry), strerror(errno));
+        //     archive_read_data_skip(a); // Skip data for this entry 
+        //     continue; // Go to next entry
+        // }
+        // This works but it extracts the files
+
+        // if((r = archive_read_data_into_fd(a, fd)) < ARCHIVE_OK){
+        //     fprintf(stderr, "Error extracting data: %s\n", archive_error_string(a));
+        //     close(fd); 
+        //     archive_read_data_skip(a); // Skip the data for this entry
+        //     continue; // Go to next entry
+        // } 
+        
+        // close(fd);
     }
-    
-    printf("Successfully received: %u bytes\n", message->fsize);
 
-
-    // Clean up 
-    explicit_bzero(buffer, buffer_size); 
-    free(buffer); 
-    buffer = NULL; 
+    // Clean up
+    archive_read_close(a); 
+    archive_read_free(a);
+    archive_write_close(aw);
+    archive_write_free(aw);
     
 
-    // Now save the file 
+    return 0;
+
 
 }
 
-OperationFunc getOperation(uint32_t op){
+
+
+
+
+
+OperationFunc getOperation(uint64_t op){
     OperationFunc *func;
     switch(op){
         case TEST_OPERATION:
@@ -337,223 +597,62 @@ OperationFunc getOperation(uint32_t op){
 
 // TODO: Detect Endianness and handle accordingly for all floating point numbers
 int serialize_MessageHeader(struct MessageHeader *s, char *buffer){
-    uint32_t offset = 0; // Ensures memory is copied in the correct location
+    uint64_t offset = 0; // Ensures memory is copied in the correct location
     
     // Serialize 'operation'
-    uint32_t operation = htonl(s->operation);
+    uint64_t operation = htonl(s->operation);
 
-    memcpy(buffer + offset, &operation, sizeof(uint32_t));
+    memcpy(buffer + offset, &operation, sizeof(uint64_t));
 
     
 
 
-    uint32_t size = htonl(s->size);
-    offset += sizeof(uint32_t); // Move to next memory location 
-    memcpy(buffer + offset, &size, sizeof(uint32_t));
+    uint64_t size = htonl(s->size);
+    offset += sizeof(uint64_t); // Move to next memory location 
+    memcpy(buffer + offset, &size, sizeof(uint64_t));
     
     
     return 0;  
 }
 
 typedef struct{
-
-    // Array of thread IDs
-    pthread_t *threads;  // Array of thread handles 
-    size_t num_threads;  // Total number of threads
-    Task *task_queue_rear; // Rear of the task queue
-    Task *task_queue_front;  // Front of the task queue
-    pthread_mutex_t task_queue_mutex; // Mutex for task queue access 
-    pthread_cond_t task_queue_cond; // Condition variable for the task queue. 
-    bool stop;  // Flag to stop the thread pool
-    int qsize; // Size of queue
-
-}ThreadPool; 
+    uint32_t upper;  // Upper half of a uint64_t
+    uint32_t lower; // Lower half of a uint64_t
+}uint64_s;
 
 
-int threadpool_add_task(ThreadPool *pool, void (*function)(void*), void *argument){
-    if (pool == NULL || function == NULL)
-        return -1;
+// Splits a uint64_t into two 32 bit values stored in uint64_s
+uint64_s split_u64(uint64_t val){
+    uint64_s newval; 
     
-    // Create task
-    Task *task = malloc(sizeof(Task));
-    if (task == NULL)
-        return -1; 
+    // Extract Lower 32 bits 
+    newval.lower = (uint32_t)val; 
 
-    task->function = function; 
-    task->argument = argument; 
-    task->next = NULL;  
-    
-
-    // Add task to queue
-    pthread_mutex_lock(&pool->task_queue_mutex); 
-    // If no tasks are in the queue
-    if(pool->task_queue_rear == NULL){
-        pool->task_queue_front = task; 
-        pool->task_queue_rear = task;  
-    }else{
-        pool->task_queue_rear->next = task; 
-        pool->task_queue_rear = task; 
-    }
-
-    pool->qsize++; 
-    
-    // Restarts one of the threads that are waiting on the condition variable cond. 
-    // If no threads are waiting on cond, nothing happens. 
-    // If several threads are waiting on cond, exactly one is restarted, but it is not specified which. 
-    pthread_cond_signal(&pool->task_queue_cond);
-    pthread_mutex_unlock(&pool->task_queue_mutex);
-    
-
-    return 0;  
-}
+    // Extract the Upper 32 bits (using right shift)
+    newval.upper = (uint32_t)(val >> 32); 
+    return newval;
 
 
 
-void *worker_thread(void *arg){
-    ThreadPool *pool = (ThreadPool*)arg; 
-    Task *task;
-    while (1) {
-        /* 
-         * If the mutex is locked by another thread it will suspend the calling thread until mutex is unlocked
-         * If you don't want to block the calling threads use pthread_mutex_trylock
-        */
-        
-        pthread_mutex_lock(&pool->task_queue_mutex); // Lock the mutex (or attempt to lock it)
-
-        // Wait for task or stop signal 
-        while (pool->task_queue_front == NULL && !pool->stop){
-            pthread_cond_wait(&pool->task_queue_cond, &pool->task_queue_mutex);
-        }
-        
-        // Check if thread pool is being stopped
-        if(pool->stop && pool->task_queue_front == NULL){
-            pthread_mutex_unlock(&pool->task_queue_mutex);
-            break; 
-        }
-
-        // Get task from queue 
-        printf("getting task from queue... \n");
-        task = pool->task_queue_front; 
-        pool->task_queue_front = task->next; 
-        if (pool->task_queue_front == NULL){
-            pool->task_queue_rear = NULL;
-        }
-        pool->qsize--;
-        
-        pthread_mutex_unlock(&pool->task_queue_mutex);
-        
-
-        // Execute task
-        task->function(task->argument); 
-        free(task); 
-        task = NULL; 
-        // printf("Done task\n");
-
-        // if (EXIT == 1)
- 
-        //     break;
-         
-    }
-    
-    return NULL;
-}
-
-// Destroy the thread pool 
-void threadpool_destroy(ThreadPool *pool){
-    printf("Destroy Threadpool \n");
-    if (pool == NULL)
-        return; 
-    
-    pthread_mutex_lock(&pool->task_queue_mutex);
-    pool->stop = 1; 
-
-    //  Restarts all the threads that are waiting on the condition variable cond.
-    pthread_cond_broadcast(&pool->task_queue_cond);
-    pthread_mutex_unlock(&pool->task_queue_mutex);
-    
-    
-    // Clean up remaining tasks 
-    Task *current; 
-    while (pool->task_queue_front != NULL){
-        current = pool->task_queue_front;
-        pool->task_queue_front = current->next; 
-        free(current); 
-        current = NULL; 
-    }
-    
-    // Clean up thread pool resources
-    pthread_mutex_destroy(&pool->task_queue_mutex);
-    pthread_cond_destroy(&pool->task_queue_cond);
-    free(pool->threads);
-    pool->threads = NULL; 
-    free(pool);
-    pool = NULL;
-}
+};
 
 
-
-ThreadPool *init_thread_pool(){
-    ThreadPool *pool = malloc(sizeof(ThreadPool));
-    if (pool == NULL) 
-        return NULL; 
-
-    // pthread_t threads[NUM_THREADS]; // Array of threads 
-    pool->threads = malloc(NUM_THREADS * sizeof(pthread_t));
-    if (pool->threads == NULL){
-        free(pool);
-        pool = NULL; 
-        return NULL; 
-    }
-    pool->num_threads = NUM_THREADS; 
-    pool->task_queue_front = NULL;
-    pool->task_queue_rear = NULL;
-    pool->stop = 0;
-    pool->qsize = 0; 
-    
-    pthread_attr_t attr; 
-    pthread_attr_init(&attr);
-    pthread_mutex_init(&pool->task_queue_mutex, NULL);
-    for(int i = 0; i < NUM_THREADS; i++){
-
-        /* 
-         *
-         * Creates a new thread 
-         * arg1: pointer to new thread
-         * arg2: thread attributes (NULL for default attributes)
-         * arg3: function to call by new thread
-         * arg4: arguments to the function the thread calls
-         
-        */
-        printf("Creating thread %d\n", i);
-        if(pthread_create(&(pool->threads[i]), &attr, worker_thread, pool) != 0){
-            threadpool_destroy(pool); 
-            return NULL;
-        }
-        
-        /* 
-         * Detaches a thread which means that resources are automatically released back 
-         * To the system without the need for another thread to join with the 
-         * terminated thread. 
-        */
-
-        pthread_detach(pool->threads[i]); // Could set this in the thread attr
-    }
-    
-    pthread_attr_destroy(&attr);
-    return pool;
-    
-
-}
 
 // int deserialize_header(struct MessageHeader *mess){
 int deserialize_header(struct Message *mess){
+    uint64_s val = split_u64(mess->total_transfered);
+
     mess->operation = ntohl(mess->operation); 
     mess->size = ntohl(mess->size);
     mess->jsize = ntohl(mess->jsize);
-    mess->fsize = ntohl(mess->fsize); 
+    mess->dsize = ntohl(mess->dsize);
+    val.lower = ntohl(val.lower); 
+    val.upper = ntohl(val.upper);
+    mess->total_transfered = combine_u32(val.upper, val.lower); 
     
     return 0; 
 }
+
 
 
 
@@ -564,7 +663,7 @@ void handle_client(void *sock){
     // char buffer[BUF_SIZE]; 
     ssize_t bytes_received; 
     int buffsize = BUF_SIZE; 
-    
+    unsigned char test_hash[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; 
     
 
     // struct MessageHeader *mess = (struct MessageHeader *)malloc(sizeof(struct MessageHeader));
@@ -592,6 +691,7 @@ void handle_client(void *sock){
         // printf("Sock check (After): %d\n", sock_check);
         printf("Waiting for client...\n");
         numbytes = recv(client_socket, buffer, BUF_SIZE, 0);
+        printf("Received: %d\n", numbytes);
         if(numbytes == -1){
             perror("recv"); 
             close(client_socket); 
@@ -613,17 +713,19 @@ void handle_client(void *sock){
         offset += sizeof(uint32_t);
         memcpy(&client_message->size, buffer + offset, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-        memcpy(&client_message->jsize, buffer + offset, sizeof(uint32_t));
+        memcpy(&client_message->dsize, buffer + offset, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-        memcpy(&client_message->fsize, buffer + offset, sizeof(uint32_t));
+        memcpy(&client_message->jsize, buffer + offset, sizeof(uint64_t)); 
         offset += sizeof(uint32_t);
+        memcpy(&client_message->total_transfered, buffer + offset, sizeof(uint64_t)); 
+        offset += sizeof(uint64_t);
     
         // printf("sizeof message header: %lu\n", sizeof(struct MessageHeader));
         deserialize_header(client_message);
         
         
 
-        printf("Operation: %u\nSize: %u\nJsize: %u\nFsize: %u\n", client_message->operation, client_message->size, client_message->jsize, client_message->fsize);
+        printf("Operation: %u\nSize: %u\nJsize: %u\nTotal Transfered: %lu\nData Size: %u\n", client_message->operation, client_message->size, client_message->jsize, client_message->total_transfered, client_message->dsize);
         // printf("Buffer: %s\n", buffer + sizeof(struct MessageHeader));
 
         if(client_message->operation > 3){
@@ -632,11 +734,12 @@ void handle_client(void *sock){
 
         client_message->data = buffer + offset; 
         OperationFunc selectedOP = getOperation(client_message->operation); 
-        selectedOP(sock, client_message);
+        unsigned char *fhash = (unsigned char *)selectedOP(sock, client_message);
 
         
         // If the client is sending a file 
         // if(client_message->operation == FILE_TRANSFER){
+        //     printf("Here\n");
             // handle_file_transfer(&client_socket, client_message);
             
             // char *jstring = malloc(client_message->jsize + 1); 
@@ -652,19 +755,37 @@ void handle_client(void *sock){
             // cJSON_Delete(json_object);
             // handle_file_transfer(&client_socket, client_message, buffer + sizeof(struct MessageHeader));
         // }
+        
+        ssize_t sent_val; 
+        if(w_flag){
+            printf("MD5 Hash: ");
+            for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
+                printf("%02"PRIx8, fhash[i]); // %02x for lowercase hex, %02X for uppercase
+            }
+            printf("\n");
+            sent_val = send(client_socket, fhash, MD5_DIGEST_LENGTH, 0);
+            
 
+        }else{
+            // Use test hash here
+            sent_val = send(client_socket, test_hash, MD5_DIGEST_LENGTH, 0);
+        }
         
 
 
 
 
         // Send response
-        const char *msg = "Hello from server!"; 
-        check_server_socket(client_socket, 1);
+        // const char *msg = "Hello from server!";  
+        // check_server_socket(client_socket, 1);
         // char *msg = client_message; 
-        if(send(client_socket, msg, strlen(msg), 0) == -1){
+        // if(send(client_socket, msg, strlen(msg), 0) == -1){
+        // if(send(client_socket, fhash, MD5_DIGEST_LENGTH, 0) == -1){
+        if(sent_val == -1){
         // if(send(client_socket, m_buffer, 128, 0) == -1){
-         perror("send"); 
+            perror("send"); 
+        }else{ 
+            printf("Sent response\n");
         }
 
 
@@ -691,18 +812,45 @@ void handle_client(void *sock){
 }
 
 
-#ifdef TEST_SERVER
+// #ifdef TEST_SERVER
 int main(int argc, char *argv[]){
 
-    printf("Server started\n"); 
+    int opt; 
+    char *port = NULL;
+    
+
+    while((opt = getopt(argc, argv, "wl:p:")) != -1){
+        // printf("OPT: %d\n", opt); 
+        switch(opt){
+            case 'w': 
+                w_flag = 1; 
+                break; 
+            case 'l': 
+                l_flag = 1; 
+                write_location = optarg; 
+                break; 
+            case 'p':
+                p_flag = 1;
+                port = optarg; 
+                break;
+                
+            default:
+                break; 
+        }
+    }
+    
+
+
+
+    printf("NT Server started\n"); 
 
     // argv1 is port 
 
-    if (argc != 2){
-        fprintf(stderr, "Usage: %s port \n", argv[0]);
+    if (argc < 2){
+        fprintf(stderr, "Usage: %s port -options\n", argv[0]);
         exit(EXIT_FAILURE);
     }
-    
+
     int gai, sfd, new_fd; 
     char buf[BUF_SIZE];
     ssize_t nread; 
@@ -724,11 +872,26 @@ int main(int argc, char *argv[]){
     hints.ai_addr = NULL;
     hints.ai_next = NULL;
     
-    gai = getaddrinfo(NULL, argv[1], &hints, &result);
-    if ( gai != 0){
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(gai));
-        exit(EXIT_FAILURE);
-    }
+
+    // char* port;
+    // if (optind < argc) {  // Check if there are any non-option arguments
+    //     printf("Non-option arguments:\n");
+    //     for (int i = optind; i < argc; i++) {
+    //         printf("%s ", argv[i]);
+    //         port = argv[i]; 
+
+    //     }
+    //     printf("\n");
+    // } else {
+    //     printf("No non-option arguments.\n");
+    //     if (argc < 2){
+    //         fprintf(stderr, "Usage: %s port -options\n", argv[0]);
+    //         exit(EXIT_FAILURE);
+    //     }
+        
+    // }
+    gai = getaddrinfo(NULL, port, &hints, &result);
+
     /* 
      * getaddrinfo() returns a list of address structures. 
         Try each address until we successfully bind(2). 
@@ -771,9 +934,14 @@ int main(int argc, char *argv[]){
         close(sfd); 
         exit(1);
     }
+    
+    if(1 == w_flag)
+        printf("-w flag detected writing files to save location.\n");
+    
+    if(1 == l_flag)
+        printf("Write location set to: %s\n", write_location);
     printf("server: waiting for connections...\n");
     
-    ThreadPool *pool = init_thread_pool(); 
     peer_addrlen = sizeof(peer_addr);
 
     while(1){
@@ -791,14 +959,7 @@ int main(int argc, char *argv[]){
         } 
         
 
-        // printf("Adding new task \n"); 
-        // if (EXIT){
-        //     printf("Exiting...\n");
-        //     break; 
-            
-        // }
-        threadpool_add_task(pool, &handle_client, &new_fd);
-        printf("Queue size: %d\n", pool->qsize);
+        handle_client(&new_fd);
         // handle_client(new_fd);
 
         
@@ -820,8 +981,7 @@ int main(int argc, char *argv[]){
     printf("At main end\n");
     close(new_fd);
     close(sfd);
-    // threadpool_destroy(pool);
     return 0;
 }
 
-#endif
+// #endif
