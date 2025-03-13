@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/jack/Documents/ezBackup
+CMAKE_SOURCE_DIR = /home/jack/Documents/ezb/EZBackup-2
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/jack/Documents/ezBackup/build
+CMAKE_BINARY_DIR = /home/jack/Documents/ezb/EZBackup-2/build
 
 # Utility rule file for ExperimentalUpdate.
 
@@ -82,6 +82,6 @@ CMakeFiles/ExperimentalUpdate.dir/clean:
 .PHONY : CMakeFiles/ExperimentalUpdate.dir/clean
 
 CMakeFiles/ExperimentalUpdate.dir/depend:
-	cd /home/jack/Documents/ezBackup/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jack/Documents/ezBackup /home/jack/Documents/ezBackup /home/jack/Documents/ezBackup/build /home/jack/Documents/ezBackup/build /home/jack/Documents/ezBackup/build/CMakeFiles/ExperimentalUpdate.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/jack/Documents/ezb/EZBackup-2/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jack/Documents/ezb/EZBackup-2 /home/jack/Documents/ezb/EZBackup-2 /home/jack/Documents/ezb/EZBackup-2/build /home/jack/Documents/ezb/EZBackup-2/build /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/ExperimentalUpdate.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/ExperimentalUpdate.dir/depend
 

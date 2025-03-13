@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/jack/Documents/ezBackup
+CMAKE_SOURCE_DIR = /home/jack/Documents/ezb/EZBackup-2
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/jack/Documents/ezBackup/build
+CMAKE_BINARY_DIR = /home/jack/Documents/ezb/EZBackup-2/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ezBackup.dir/depend.make
@@ -70,32 +70,32 @@ include CMakeFiles/ezBackup.dir/progress.make
 include CMakeFiles/ezBackup.dir/flags.make
 
 CMakeFiles/ezBackup.dir/main.c.o: CMakeFiles/ezBackup.dir/flags.make
-CMakeFiles/ezBackup.dir/main.c.o: /home/jack/Documents/ezBackup/main.c
+CMakeFiles/ezBackup.dir/main.c.o: /home/jack/Documents/ezb/EZBackup-2/main.c
 CMakeFiles/ezBackup.dir/main.c.o: CMakeFiles/ezBackup.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezBackup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ezBackup.dir/main.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/ezBackup.dir/main.c.o -MF CMakeFiles/ezBackup.dir/main.c.o.d -o CMakeFiles/ezBackup.dir/main.c.o -c /home/jack/Documents/ezBackup/main.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ezBackup.dir/main.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/ezBackup.dir/main.c.o -MF CMakeFiles/ezBackup.dir/main.c.o.d -o CMakeFiles/ezBackup.dir/main.c.o -c /home/jack/Documents/ezb/EZBackup-2/main.c
 
 CMakeFiles/ezBackup.dir/main.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/ezBackup.dir/main.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezBackup/main.c > CMakeFiles/ezBackup.dir/main.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/main.c > CMakeFiles/ezBackup.dir/main.c.i
 
 CMakeFiles/ezBackup.dir/main.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/ezBackup.dir/main.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezBackup/main.c -o CMakeFiles/ezBackup.dir/main.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/main.c -o CMakeFiles/ezBackup.dir/main.c.s
 
 CMakeFiles/ezBackup.dir/tools.c.o: CMakeFiles/ezBackup.dir/flags.make
-CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezBackup/tools.c
+CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezb/EZBackup-2/tools.c
 CMakeFiles/ezBackup.dir/tools.c.o: CMakeFiles/ezBackup.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezBackup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ezBackup.dir/tools.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/ezBackup.dir/tools.c.o -MF CMakeFiles/ezBackup.dir/tools.c.o.d -o CMakeFiles/ezBackup.dir/tools.c.o -c /home/jack/Documents/ezBackup/tools.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ezBackup.dir/tools.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/ezBackup.dir/tools.c.o -MF CMakeFiles/ezBackup.dir/tools.c.o.d -o CMakeFiles/ezBackup.dir/tools.c.o -c /home/jack/Documents/ezb/EZBackup-2/tools.c
 
 CMakeFiles/ezBackup.dir/tools.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/ezBackup.dir/tools.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezBackup/tools.c > CMakeFiles/ezBackup.dir/tools.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/tools.c > CMakeFiles/ezBackup.dir/tools.c.i
 
 CMakeFiles/ezBackup.dir/tools.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/ezBackup.dir/tools.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezBackup/tools.c -o CMakeFiles/ezBackup.dir/tools.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/tools.c -o CMakeFiles/ezBackup.dir/tools.c.s
 
 # Object files for target ezBackup
 ezBackup_OBJECTS = \
@@ -109,7 +109,7 @@ ezBackup: CMakeFiles/ezBackup.dir/main.c.o
 ezBackup: CMakeFiles/ezBackup.dir/tools.c.o
 ezBackup: CMakeFiles/ezBackup.dir/build.make
 ezBackup: CMakeFiles/ezBackup.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jack/Documents/ezBackup/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable ezBackup"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable ezBackup"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ezBackup.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -121,6 +121,6 @@ CMakeFiles/ezBackup.dir/clean:
 .PHONY : CMakeFiles/ezBackup.dir/clean
 
 CMakeFiles/ezBackup.dir/depend:
-	cd /home/jack/Documents/ezBackup/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jack/Documents/ezBackup /home/jack/Documents/ezBackup /home/jack/Documents/ezBackup/build /home/jack/Documents/ezBackup/build /home/jack/Documents/ezBackup/build/CMakeFiles/ezBackup.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/jack/Documents/ezb/EZBackup-2/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jack/Documents/ezb/EZBackup-2 /home/jack/Documents/ezb/EZBackup-2 /home/jack/Documents/ezb/EZBackup-2/build /home/jack/Documents/ezb/EZBackup-2/build /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/ezBackup.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/ezBackup.dir/depend
 

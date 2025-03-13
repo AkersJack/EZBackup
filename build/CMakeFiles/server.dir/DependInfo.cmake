@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/jack/Documents/ezBackup/server.c" "CMakeFiles/server.dir/server.c.o" "gcc" "CMakeFiles/server.dir/server.c.o.d"
+  "/home/jack/Documents/ezb/EZBackup-2/server.c" "CMakeFiles/server.dir/server.c.o" "gcc" "CMakeFiles/server.dir/server.c.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
