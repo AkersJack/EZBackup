@@ -330,10 +330,15 @@ ssize_t exactRead(int sock, void *buffer, size_t length){
 }
 
 ssize_t custom_write(FILE *fp, void *buffer, size_t length){
-    size_t written = fwrite(buffer, 1, length, fp);
-    if(written != length){
-        perror("Write error");
-        return -1; 
+    size_t written;
+    if(w_flag){
+            written = fwrite(buffer, 1, length, fp);
+            if (written != length) {
+                    perror("Write error");
+                    return -1;
+            }
+    }else{
+        written = length;
     }
     
 
@@ -352,14 +357,18 @@ void* handle_file_transfer(void *sock_ptr, void *message_ptr){
     uint64_t total_read = 0; 
     uint32_t length; 
     uint64_t headsize = 0; 
+    FILE *output_file;
 
     char output_filename[] = "./testOutput_Server.tar.zst";
 
-    FILE *output_file = fopen(output_filename, "wb");
-    
-    if(output_file == NULL){
-        fprintf(stderr, "Failed to open output file %s\n", output_filename);
-        exit(EXIT_FAILURE);
+
+    if(w_flag){
+            output_file = fopen(output_filename, "wb");
+
+            if (output_file == NULL) {
+                    fprintf(stderr, "Failed to open output file %s\n", output_filename);
+                    exit(EXIT_FAILURE);
+            }
     }
     
     sizeObject sizeObj_1; 
@@ -378,13 +387,18 @@ void* handle_file_transfer(void *sock_ptr, void *message_ptr){
         ssize_t numbytes = exactRead(sock, buffer, length);
         total_read += numbytes; 
         
-        size_t written = custom_write(output_file, buffer, length);
+        size_t written;
+        if(w_flag)
+            written = custom_write(output_file, buffer, length);
+        else
+            written = length;
 
         if(written == -1){
             perror("write");
             free(buffer); 
             buffer = NULL;
-            fclose(output_file);
+            if(w_flag)
+                fclose(output_file);
             exit(EXIT_FAILURE);
 
         }
@@ -400,7 +414,8 @@ void* handle_file_transfer(void *sock_ptr, void *message_ptr){
 
     }
     
-    fclose(output_file);
+    if(w_flag)
+        fclose(output_file);
     
     printf("Total Size: %lu\n", total_size);
 
@@ -417,148 +432,6 @@ void* handle_file_transfer(void *sock_ptr, void *message_ptr){
 // int handle_file_transfer(void *sock, struct Message *mess, char *buff){
 // int handle_file_transfer(void *sock, struct MessageHeader *mess, char *buff){
 // At this point the header should have been fully read and message_ptr contains that data
-void* handle_file_transfer2(void *sock_ptr, void *message_ptr){
-    int client_socket = *(int *)sock_ptr; 
-    struct Message *message = (struct Message *)message_ptr; 
-    // struct archive_entry *entry;  
-    struct archive_entry *entry = archive_entry_new();
-    
-
-    struct socket_src client_sock; 
-    client_sock.sock = client_socket;
-    
-    
-    int r;
-
-
-    // Archive writer
-    struct archive *aw = archive_write_new();
-    if(!aw){
-        fprintf(stderr, "Failed to create archive writer\n"); 
-        exit(EXIT_FAILURE); 
-    }
-    
-    // Archive reader
-    struct archive *a = archive_read_new(); 
-    if(!a){
-        fprintf(stderr, "Failed to create archive reader\n"); 
-        exit(EXIT_FAILURE); 
-    }
-    
-
-
-
-    // Support all available archive formats and filters 
-    archive_read_support_compression_all(a); 
-    archive_read_support_format_all(a);
-    // archive_read_support_format_raw(a);
-    // archive_read_support_filter_none(a);
-
-    if(archive_read_open(a, &client_sock, socket_open_cb, socket_read_cb, socket_close_cb) != ARCHIVE_OK){
-
-        fprintf(stderr, "Failed to open archive: %s\n", archive_error_string(a));
-        archive_read_free(a); 
-        exit(EXIT_FAILURE);
-    }
-
-    // if(archive_write_set_format_raw(aw) != ARCHIVE_OK){
-    //     fprintf(stderr, "%s\n", archive_error_string(aw));
-    //     archive_write_free(aw);
-    //     exit(EXIT_FAILURE);
-    // }
-    // Using GNUtar
-    if(archive_write_set_format_gnutar(aw) != ARCHIVE_OK){
-        fprintf(stderr, "%s\n", archive_error_string(aw)); 
-        archive_write_free(a); 
-        exit(EXIT_FAILURE);
-    }
-    // archive_write_set_format_raw(aw);
-    // archive_write_add_filter_none(aw);
-    
-    if(archive_write_open_filename(aw, "./testwrite2.tar.zst") != ARCHIVE_OK){
-        fprintf(stderr, "archive_write_open_filename failed: %s\n", archive_error_string(aw));
-    
-        archive_write_free(aw);
-        archive_read_free(a); 
-        exit(EXIT_FAILURE);
-    }
-    
-    // archive_entry_set_pathname(entry, "archive.zst"); 
-    // archive_entry_set_filetype(entry, AE_IFREG);
-    // archive_entry_set_size(entry, 10240000);
-    
-    // if(archive_write_header(aw, entry) != ARCHIVE_OK){
-    //     fprintf(stderr, "%s\n", archive_error_string(aw)); 
-    //     archive_write_free(aw);
-    //     archive_read_free(a);
-    //     exit(EXIT_FAILURE);
-    // }
-    
-
-
-    // Loop through the archive entries
-    while(archive_read_next_header(a, &entry) == ARCHIVE_OK){
-        printf("Filename: %s\n", archive_entry_pathname(entry));
-        // We are going to skip the data for this entry for now 
-        // archive_read_data_skip(a);
-        
-        if(archive_write_header(aw, entry) != ARCHIVE_OK){
-           fprintf(stderr, "archive_write_header failed: %s\n", archive_error_string(aw)); 
-        }
-        
-        char bufft[102400];
-        ssize_t bytes_read; 
-        while((bytes_read = archive_read_data(a, bufft, 102400)) > 0){
-            ssize_t bytes_written = archive_write_data(aw, bufft, bytes_read);
-            if (bytes_written != bytes_read){
-                fprintf(stderr, "archive_write_data failed: %s\n", archive_error_string(aw));
-                break;
-            }
-        }
-
-        /* Finalize the entry in the output archive */
-        // if(archive_write_finish_entry(aw) != ARCHIVE_OK){
-        //     fprintf(stderr, "archive_write_finished_entry failed: %s\n", archive_error_string(aw)); 
-        //     archive_write_free_(aw); 
-        //     archive_read_free(a); 
-        //     exit(EXIT_FAILURE);
-        // }
-                                                                            
-        
-        
-
-
-        
-        // int fd = open("./test_write", O_WRONLY | O_CREAT | O_TRUNC, 0644); // Create a file with perms 644
-        // if (fd < 0){
-        //     perror("open"); 
-        //     fprintf(stderr, "Error opening destination file: %s (%s)\n", archive_entry_pathname(entry), strerror(errno));
-        //     archive_read_data_skip(a); // Skip data for this entry 
-        //     continue; // Go to next entry
-        // }
-        // This works but it extracts the files
-
-        // if((r = archive_read_data_into_fd(a, fd)) < ARCHIVE_OK){
-        //     fprintf(stderr, "Error extracting data: %s\n", archive_error_string(a));
-        //     close(fd); 
-        //     archive_read_data_skip(a); // Skip the data for this entry
-        //     continue; // Go to next entry
-        // } 
-        
-        // close(fd);
-    }
-
-    // Clean up
-    archive_read_close(a); 
-    archive_read_free(a);
-    archive_write_close(aw);
-    archive_write_free(aw);
-    
-
-    return 0;
-
-
-}
 
 
 

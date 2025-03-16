@@ -1,1 +1,1 @@
-/usr/bin/cc CMakeFiles/ezBackup.dir/main.c.o CMakeFiles/ezBackup.dir/tools.c.o -o ezBackup  -larchive
+/usr/bin/cc CMakeFiles/ezBackup.dir/main.c.o CMakeFiles/ezBackup.dir/tools.c.o CMakeFiles/ezBackup.dir/database.c.o -o ezBackup  -larchive -lsqlite3

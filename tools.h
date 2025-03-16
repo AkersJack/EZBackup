@@ -23,4 +23,6 @@ typedef enum {
 
 FileType checkType(mode_t file_type);
 
+char *getFname(char *p);
+
 #endif

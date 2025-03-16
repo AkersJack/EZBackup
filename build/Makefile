@@ -173,6 +173,19 @@ server/fast:
 .PHONY : server/fast
 
 #=============================================================================
+# Target rules for targets named database
+
+# Build rule for target.
+database: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 database
+.PHONY : database
+
+# fast build rule for target.
+database/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/build
+.PHONY : database/fast
+
+#=============================================================================
 # Target rules for targets named Experimental
 
 # Build rule for target.
@@ -536,6 +549,33 @@ ContinuousSubmit/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ContinuousSubmit.dir/build.make CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
+database.o: database.c.o
+.PHONY : database.o
+
+# target to build an object file
+database.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.o
+.PHONY : database.c.o
+
+database.i: database.c.i
+.PHONY : database.i
+
+# target to preprocess a source file
+database.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.i
+.PHONY : database.c.i
+
+database.s: database.c.s
+.PHONY : database.s
+
+# target to generate assembly for a file
+database.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.s
+.PHONY : database.c.s
+
 main.o: main.c.o
 .PHONY : main.o
 
@@ -584,12 +624,37 @@ server.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.s
 .PHONY : server.c.s
 
+test_database.o: test_database.c.o
+.PHONY : test_database.o
+
+# target to build an object file
+test_database.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/test_database.c.o
+.PHONY : test_database.c.o
+
+test_database.i: test_database.c.i
+.PHONY : test_database.i
+
+# target to preprocess a source file
+test_database.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/test_database.c.i
+.PHONY : test_database.c.i
+
+test_database.s: test_database.c.s
+.PHONY : test_database.s
+
+# target to generate assembly for a file
+test_database.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/test_database.c.s
+.PHONY : test_database.c.s
+
 tools.o: tools.c.o
 .PHONY : tools.o
 
 # target to build an object file
 tools.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/tools.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/tools.c.o
 .PHONY : tools.c.o
 
 tools.i: tools.c.i
@@ -598,6 +663,7 @@ tools.i: tools.c.i
 # target to preprocess a source file
 tools.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/tools.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/tools.c.i
 .PHONY : tools.c.i
 
 tools.s: tools.c.s
@@ -606,6 +672,7 @@ tools.s: tools.c.s
 # target to generate assembly for a file
 tools.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/tools.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/tools.c.s
 .PHONY : tools.c.s
 
 # Help Target
@@ -647,14 +714,21 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... database"
 	@echo "... ezBackup"
 	@echo "... server"
+	@echo "... database.o"
+	@echo "... database.i"
+	@echo "... database.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
 	@echo "... server.o"
 	@echo "... server.i"
 	@echo "... server.s"
+	@echo "... test_database.o"
+	@echo "... test_database.i"
+	@echo "... test_database.s"
 	@echo "... tools.o"
 	@echo "... tools.i"
 	@echo "... tools.s"

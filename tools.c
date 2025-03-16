@@ -16,6 +16,16 @@
 
 */
 
+char *getFname(char *p){ 
+   char *file_name = strrchr(p, '/');
+   if(file_name == NULL){
+       file_name = p; 
+   }else{
+       file_name++; 
+   }
+   return file_name; 
+}
+
 
 FileType checkType(mode_t file_type){
    if(S_ISREG(file_type))

@@ -44,7 +44,7 @@
 #include "tools.h"
 #include <ctype.h>
 #include <math.h>
-
+#include "database.h"
 
 /* 
 
@@ -423,6 +423,20 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         char *header_buff = malloc(msg->size);
 
         char output_filename[] = "./new_test.tar.zst";
+        char output_tablename[] = "./new_test.db";
+        char database_name[] = "database.db"; 
+        
+        sqlite3 *db; 
+
+        init_Database(&db, database_name);
+        
+        // Returns 1 if the table already exists
+        int err = createTable(db, output_tablename); 
+        if(err == 1){
+                printf("Need to rename the table\n");
+        } 
+        
+        
 
         size_t header_bytes_sent = 0;
 
@@ -488,14 +502,14 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         struct custom_write_data mydata;
         mydata.total_read = &total_read;
         mydata.total_written = &total_written; 
-        mydata.output_file = fopen(output_filename, "wb");
+        // mydata.output_file = fopen(output_filename, "wb");
         mydata.sock = socket;
 
-        if (mydata.output_file == NULL) {
-                fprintf(stderr, "Failed to open output file %s\n", output_filename);
-                archive_write_free(a);
-                return 1;
-        }
+        // if (mydata.output_file == NULL) {
+        //         fprintf(stderr, "Failed to open output file %s\n", output_filename);
+        //         archive_write_free(a);
+        //         return 1;
+        // }
         mydata.output_filename = output_filename;
 
         // Set the callback
@@ -515,9 +529,16 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                 while(archive_read_next_header(dir_a, &entry) == ARCHIVE_OK){
                         const char *current_path = archive_entry_pathname(entry);
                         const struct stat *sta = archive_entry_stat(entry);
-                        char type = '?';
                         
-                        // Determine entry type
+                        char real_path[PATH_MAX];
+                        char *res = realpath(current_path, real_path);
+                        if(!res){
+                                perror("realpath");
+                                exit(EXIT_FAILURE);
+                        }
+
+                        char type = '?'; 
+                        // Determine entry type (Can be broken down into its own function)
                         if (S_ISREG(sta->st_mode)) {
                                 type = '-';
                                 archive_entry_set_filetype(entry, AE_IFREG);
@@ -549,7 +570,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                                         archive_entry_free(entry);
                                         archive_write_close(a);
                                         archive_write_free(a);
-                                        fclose(mydata.output_file);
+                                        // fclose(mydata.output_file);
                                         return 1;
                                 }
 
@@ -562,7 +583,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                                                 archive_entry_free(entry);
                                                 archive_write_close(a);
                                                 archive_write_free(a);
-                                                fclose(mydata.output_file);
+                                                // fclose(mydata.output_file);
                                                 return 1;
                                         }
                                         total_read += len;
@@ -578,7 +599,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                                 archive_entry_free(entry);
                                 archive_write_close(a);
                                 archive_write_free(a);
-                                fclose(mydata.output_file);
+                                // fclose(mydata.output_file);
                                 archive_read_close(dir_a);
                                 archive_read_free(dir_a);
                                 return 1;
@@ -594,7 +615,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         // Cleanup
         archive_write_close(a);
         archive_write_free(a);
-        fclose(mydata.output_file);
+        // fclose(mydata.output_file);
 
         printf("Successfully created compressed archive: %s\n", output_filename);
         sendBaseHeader(socket, 0, 1234567890); // Let the server know the end of the file has been sent

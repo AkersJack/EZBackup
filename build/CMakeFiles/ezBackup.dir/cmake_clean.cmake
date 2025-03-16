@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/ezBackup.dir/database.c.o"
+  "CMakeFiles/ezBackup.dir/database.c.o.d"
   "CMakeFiles/ezBackup.dir/main.c.o"
   "CMakeFiles/ezBackup.dir/main.c.o.d"
   "CMakeFiles/ezBackup.dir/tools.c.o"

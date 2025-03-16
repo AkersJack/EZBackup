@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/database.dir/test_database.c.o CMakeFiles/database.dir/database.c.o CMakeFiles/database.dir/tools.c.o -o database  -lsqlite3
