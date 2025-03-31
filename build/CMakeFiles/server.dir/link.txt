@@ -1,1 +1,1 @@
-/usr/bin/cc CMakeFiles/server.dir/server.c.o -o server  -larchive -lcjson -lcrypto
+/usr/bin/cc -g -O0 -g CMakeFiles/server.dir/server.c.o -o server  -larchive -lcjson -lcrypto

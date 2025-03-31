@@ -186,6 +186,19 @@ database/fast:
 .PHONY : database/fast
 
 #=============================================================================
+# Target rules for targets named config
+
+# Build rule for target.
+config: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 config
+.PHONY : config
+
+# fast build rule for target.
+config/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/build
+.PHONY : config/fast
+
+#=============================================================================
 # Target rules for targets named Experimental
 
 # Build rule for target.
@@ -549,6 +562,33 @@ ContinuousSubmit/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ContinuousSubmit.dir/build.make CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
+config.o: config.c.o
+.PHONY : config.o
+
+# target to build an object file
+config.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.o
+.PHONY : config.c.o
+
+config.i: config.c.i
+.PHONY : config.i
+
+# target to preprocess a source file
+config.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.i
+.PHONY : config.c.i
+
+config.s: config.c.s
+.PHONY : config.s
+
+# target to generate assembly for a file
+config.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.s
+.PHONY : config.c.s
+
 database.o: database.c.o
 .PHONY : database.o
 
@@ -714,9 +754,13 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... config"
 	@echo "... database"
 	@echo "... ezBackup"
 	@echo "... server"
+	@echo "... config.o"
+	@echo "... config.i"
+	@echo "... config.s"
 	@echo "... database.o"
 	@echo "... database.i"
 	@echo "... database.s"

@@ -7,6 +7,10 @@ project(ezBackup
         DESCRIPTION "An easy backup solution")
 
 
+# Ensures CMake is generating debug builds by default
+set(CMAKE_BUILD_TYPE Debug)
+
+
 # add_subdirectory(test)
 
 # Find libarchive
@@ -23,11 +27,23 @@ add_executable(server server.c)
 target_link_libraries(server PRIVATE archive PRIVATE cjson PRIVATE crypto)
 
 # Database 
-add_executable(database test_database.c database.c tools.c)
-target_link_libraries(database PRIVATE sqlite3)
+add_executable(database test_database.c database.c tools.c config.c)
+target_link_libraries(database PRIVATE sqlite3 PRIVATE cjson)
 
 # Enable debugging
 add_compile_options(-g)
+
+# Config
+add_library(config STATIC config.c)
+target_link_libraries(config PRIVATE cjson)
+
+# set(CMAKE_C_FLAGS_DEBUG "-g") # could do set(CMAGE_BUILD_TYPE Debug)
+
+target_compile_options(database PRIVATE -g)
+
+set(CMAKE_C_FLAGS "-g -O0")  # Disable optimizations for better debugging
+
+
 # Enable Tests
 include(CTest)
 # add_subdirectory(ezBackup)

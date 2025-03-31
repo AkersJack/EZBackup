@@ -56,6 +56,7 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/ezBackup.dir/DependInfo.cmake"
   "CMakeFiles/server.dir/DependInfo.cmake"
   "CMakeFiles/database.dir/DependInfo.cmake"
+  "CMakeFiles/config.dir/DependInfo.cmake"
   "CMakeFiles/Experimental.dir/DependInfo.cmake"
   "CMakeFiles/Nightly.dir/DependInfo.cmake"
   "CMakeFiles/Continuous.dir/DependInfo.cmake"

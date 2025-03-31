@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/database.dir/config.c.o"
+  "CMakeFiles/database.dir/config.c.o.d"
   "CMakeFiles/database.dir/database.c.o"
   "CMakeFiles/database.dir/database.c.o.d"
   "CMakeFiles/database.dir/test_database.c.o"

@@ -60,6 +60,8 @@ gcc -g client.c -o client -l cjson -l ssl -l crypto
 
 cmake --build .
 
+cmake --build ./build && ./database
+
 */
 
 
@@ -431,7 +433,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         init_Database(&db, database_name);
         
         // Returns 1 if the table already exists
-        int err = createTable(db, output_tablename); 
+        int err = createTableData(db, output_tablename); 
         if(err == 1){
                 printf("Need to rename the table\n");
         } 

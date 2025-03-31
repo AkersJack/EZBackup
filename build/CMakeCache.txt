@@ -292,6 +292,9 @@ MEMORYCHECK_SUPPRESSIONS_FILE:FILEPATH=
 //Name of the computer/site where compile is being run
 SITE:STRING=TheBeast
 
+//Dependencies for the target
+config_LIB_DEPENDS:STATIC=general;cjson;
+
 //Value Computed by CMake
 ezBackup_BINARY_DIR:STATIC=/home/jack/Documents/ezb/EZBackup-2/build
 

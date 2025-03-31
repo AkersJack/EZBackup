@@ -66,6 +66,7 @@ CMAKE_BINARY_DIR = /home/jack/Documents/ezb/EZBackup-2/build
 all: CMakeFiles/ezBackup.dir/all
 all: CMakeFiles/server.dir/all
 all: CMakeFiles/database.dir/all
+all: CMakeFiles/config.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,6 +77,7 @@ preinstall:
 clean: CMakeFiles/ezBackup.dir/clean
 clean: CMakeFiles/server.dir/clean
 clean: CMakeFiles/database.dir/clean
+clean: CMakeFiles/config.dir/clean
 clean: CMakeFiles/Experimental.dir/clean
 clean: CMakeFiles/Nightly.dir/clean
 clean: CMakeFiles/Continuous.dir/clean
@@ -113,7 +115,7 @@ clean: CMakeFiles/ContinuousSubmit.dir/clean
 CMakeFiles/ezBackup.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=5,6,7,8 "Built target ezBackup"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=8,9,10,11 "Built target ezBackup"
 .PHONY : CMakeFiles/ezBackup.dir/all
 
 # Build rule for subdir invocation for target.
@@ -139,7 +141,7 @@ CMakeFiles/ezBackup.dir/clean:
 CMakeFiles/server.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=9,10 "Built target server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=12,13 "Built target server"
 .PHONY : CMakeFiles/server.dir/all
 
 # Build rule for subdir invocation for target.
@@ -165,12 +167,12 @@ CMakeFiles/server.dir/clean:
 CMakeFiles/database.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=1,2,3,4 "Built target database"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=3,4,5,6,7 "Built target database"
 .PHONY : CMakeFiles/database.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/database.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/database.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
 .PHONY : CMakeFiles/database.dir/rule
@@ -183,6 +185,32 @@ database: CMakeFiles/database.dir/rule
 CMakeFiles/database.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/clean
 .PHONY : CMakeFiles/database.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/config.dir
+
+# All Build rule for target.
+CMakeFiles/config.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=1,2 "Built target config"
+.PHONY : CMakeFiles/config.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/config.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/config.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
+.PHONY : CMakeFiles/config.dir/rule
+
+# Convenience name for target.
+config: CMakeFiles/config.dir/rule
+.PHONY : config
+
+# clean rule for target.
+CMakeFiles/config.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/clean
+.PHONY : CMakeFiles/config.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/Experimental.dir

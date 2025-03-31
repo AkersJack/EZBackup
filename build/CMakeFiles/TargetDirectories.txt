@@ -1,6 +1,7 @@
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/ezBackup.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/server.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/database.dir
+/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/config.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/Experimental.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/Nightly.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/Continuous.dir
