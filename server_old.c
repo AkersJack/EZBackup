@@ -17,6 +17,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <openssl/md5.h>
+#include <archive.h> 
+#include <archive_entry.h>
+#include <math.h>
 
 #if defined(__APPLE__)
     #define explicit_bzero(ptr, size)   memset_s(ptr, size, 0, size)
@@ -24,6 +27,8 @@
 
 /* 
 
+Current Compile command: 
+gcc -g -D TEST_SERVER server.c -o server -l cjson -l crypto -l archive
 
 Compile the server 
 gcc -g -D TEST_SERVER server.c -o server 
@@ -47,21 +52,7 @@ getnameinfo()
 https://man7.org/linux/man-pages/man3/getnameinfo.3.html
 
 
-recvfrom()
-https://man7.org/linux/man-pages/man3/recvfrom.3p.html
-
-getsockname() 
-https://man7.org/linux/man-pages/man2/getsockname.2.html
-
-
-sendfile() 
-https://man7.org/linux/man-pages/man2/sendfile.2.html
-
-Socket Domains: 
-    - For IPV4 we use AF_INET 
-    - For IPV6 we use AF_INET6 
-
-
+recvfrom()server_NT.c
 
 Socket Types: 
     SOCK_STREAM
@@ -115,7 +106,8 @@ select()
 #define BUF_SIZE 1024
 // #define MAX_BUFFER_SIZE 1048576 // 1 megabyte (apparently too big and inefficient)
 // #define MAX_BUFFER_SIZE 4096 //  
-#define MAX_BUFFER_SIZE 65536 // 64 KB is apparently more optimal 
+// #define MAX_BUFFER_SIZE 65536 // 64 KB is apparently more optimal 
+#define MAX_BUFFER_SIZE 131072 // 128 KB (same as the client buffer)
 
 
 // Flags 
@@ -140,22 +132,46 @@ struct MessageHeader{
     uint32_t operation; // Type of operation
     uint32_t size; // Size of the data coming in 
     uint32_t jsize; // Size of json data
-    uint64_t fsize; // size of file/data
+    uint64_t dsize; // size of file/data
     
 };
 
 struct Message{
-    uint32_t operation; // Operation Type (e.g., FILE_TRANSFER, RECOVERY)
-    uint32_t size; // Size of the entire payload 
-    uint32_t jsize; // Size of json file 
-    uint64_t fsize; // Size of the file/data
-    // char payload[]; // File data and json data
-    char *data;
+        uint32_t operation; // Operation Type (e.g., FILE_TRANSFER, RECOVERY)
+        uint32_t size; // Total size of the payload/message 
+        uint32_t dsize; // Data size (size of data associated with this packet)
+        uint32_t jsize; // Size of json file (if included)
+        uint64_t total_transfered; // Total amount of data transfered (can be NULL)
+        char *data; // JSON data but can be NULL for no data
 };
+
+// Need to free the hash
+unsigned char* genHash(char *buff, size_t buff_size){
+    unsigned char *hash = malloc(MD5_DIGEST_LENGTH); 
+    
+    MD5_CTX md5; 
+    
+    
+
+    MD5_Init(&md5);
+    
+    MD5_Update(&md5, buff, buff_size); // Try this if slow we can split it into pieces
+    // while(buff_size > 0){
+    //     MD5_update(&md5, buff + offset, hbuff_size); 
+    //     offset += hbuff_size;
+    //     buff_size -= hbuff_size; 
+    // }
+    
+    MD5_Final(hash, &md5);
+    
+
+    
+    return hash;
+}
 
 
 // Generate MD5 File hash (need to free the returned value)
-unsigned char* genHash(const char *fpath){
+unsigned char* genHash_file(const char *fpath){
     FILE *fp = fopen(fpath, "rb");
     if(fp == NULL){
         perror("Error opening file");
@@ -180,6 +196,28 @@ unsigned char* genHash(const char *fpath){
     
     return hash;
     
+}
+
+typedef struct{
+        char units[3];
+        double size; 
+
+}sizeObject;
+
+sizeObject sizeFormat(long double num){
+        sizeObject sObj = {"", 0};
+        char units[][3] = {"B", "KB", "MB", "GB", "TB", "PB"}; 
+        long double sizes[] = {1, 1024, pow(1024, 2), pow(1024, 3), pow(1024, 4), pow(1024, 5)}; 
+        for(int i = 1; i < sizeof(sizes); i++){
+                if (sizes[i] > num){
+                        sObj.size = num / sizes[i - 1];
+                        strncpy(sObj.units, units[i - 1], 2);
+                        sObj.units[sizeof(sObj.units) - 1] = '\0';
+                        break;
+                }
+        }
+        
+        return sObj; 
 }
 
 
@@ -241,195 +279,164 @@ int check_server_socket(int server_socket, int timeout_seconds){
     
 }
 
+int socket_open_cb(struct archive *a, void *client_data){
+    int sock = *((int *)client_data);
+    printf("Socket open CB \n");
+    return ARCHIVE_OK;
+
+}
+
+struct socket_src{
+    int sock; 
+    char buffer[131072]; 
+};
+
+la_ssize_t socket_read_cb(struct archive *a, void *client_data, const void **buff){
+    struct socket_src *src = client_data; 
+
+    // printf("Socket read CB \n");
+    
+    ssize_t bytes_read = read(src->sock, src->buffer, sizeof(src->buffer));
+    if(bytes_read < 0){
+        perror("read"); 
+        return -1; // Signal error
+    }
+    
+    *buff = src->buffer; 
+    return bytes_read; 
+
+}
+
+// Could use this to close the socket (probably won't as we re-use the socket again)
+int socket_close_cb(struct archive *a, void *client_data){
+    int sock = *((int *)client_data);
+    printf("Socket close CB \n");
+    return ARCHIVE_OK;
+
+}
+
+
+ssize_t exactRead(int sock, void *buffer, size_t length){
+    size_t total_read = 0; 
+    while (total_read < length){
+        ssize_t bytes_read = recv(sock, buffer + total_read, length - total_read, 0);
+        // ssize_t bytes_read = read(sock, buffer + total_read, length - total_read);
+        if(bytes_read <= 0){
+            return bytes_read; // Error or connection closed
+        }
+        total_read += bytes_read;
+    }
+    return total_read;
+}
+
+ssize_t custom_write(FILE *fp, void *buffer, size_t length){
+    size_t written;
+    if(w_flag){
+            written = fwrite(buffer, 1, length, fp);
+            if (written != length) {
+                    perror("Write error");
+                    return -1;
+            }
+    }else{
+        written = length;
+    }
+    
+
+    return written;
+
+}
+
+
+void* handle_file_transfer(void *sock_ptr, void *message_ptr){
+    int sock = *(int *)sock_ptr; 
+    struct Message *message = (struct Message *)message_ptr; 
+    char *buffer; 
+    char basebuff[8];
+    uint32_t eof = 0; 
+    uint64_t total_size = 0; 
+    uint64_t total_read = 0; 
+    uint32_t length; 
+    uint64_t headsize = 0; 
+    FILE *output_file;
+
+    char output_filename[] = "./testOutput_Server.tar.zst";
+
+
+    if(w_flag){
+            output_file = fopen(output_filename, "wb");
+
+            if (output_file == NULL) {
+                    fprintf(stderr, "Failed to open output file %s\n", output_filename);
+                    exit(EXIT_FAILURE);
+            }
+    }
+    
+    sizeObject sizeObj_1; 
+    sizeObject sizeObj_2; 
+    while(eof != 1234567890){
+        size_t bytes_read = exactRead(sock, &basebuff, 8);
+        memcpy(&length, basebuff, 4);
+        memcpy(&eof, basebuff + 4, 4);
+        
+        length = ntohl(length); 
+        eof = ntohl(eof);
+        
+        headsize += 8; 
+        buffer = malloc(length); 
+        
+        ssize_t numbytes = exactRead(sock, buffer, length);
+        total_read += numbytes; 
+        
+        size_t written;
+        if(w_flag)
+            written = custom_write(output_file, buffer, length);
+        else
+            written = length;
+
+        if(written == -1){
+            perror("write");
+            free(buffer); 
+            buffer = NULL;
+            if(w_flag)
+                fclose(output_file);
+            exit(EXIT_FAILURE);
+
+        }
+        
+        // printf("Received: %ld\n", written);
+        total_size += written; 
+        sizeObj_1 = sizeFormat(((long double)total_size));
+        sizeObj_2 = sizeFormat(((long double)total_read));
+        printf("Total Written: %.2lf %s\t Total Received: %.2lf\n", sizeObj_1.size, sizeObj_1.units, sizeObj_2.size, sizeObj_2.units);
+        free(buffer); 
+        buffer = NULL;
+        
+
+    }
+    
+    if(w_flag)
+        fclose(output_file);
+    
+    printf("Total Size: %lu\n", total_size);
+
+    printf("Received File\n");
+    free(buffer);
+    buffer = NULL;
+    return 0;
+}
+
+
+
+
 
 // int handle_file_transfer(void *sock, struct Message *mess, char *buff){
 // int handle_file_transfer(void *sock, struct MessageHeader *mess, char *buff){
 // At this point the header should have been fully read and message_ptr contains that data
-void* handle_file_transfer(void *sock_ptr, void *message_ptr){
-    int client_socket = *(int *)sock_ptr; 
-    struct Message *message = (struct Message *)message_ptr; 
-    // Check if a null-terminating character exists if not add one 
-    char *jstring = malloc(message->jsize); 
-    if(!jstring){
-        perror("Failed to allocate memory");
-        exit(1);
-    }
-    bzero(jstring, message->jsize);
-    memcpy(jstring, message->data, message->jsize);
-    if(jstring[message->jsize] != '\0'){
-        jstring[message->jsize] = '\0';
-    }
-    // char *new_buffer = realloc(buffer, message->size); 
-    ssize_t numbytes; 
-    uint64_t buffsize = BUF_SIZE; // Holds the buffsize up to a certain point
-    int header_csize = (BUF_SIZE - (sizeof(struct MessageHeader) + message->jsize)); // Size of file data in first header
-
-
-    // printf("JSON String: %s\n", jstring);
-
-    cJSON *json_object = cJSON_Parse(jstring);
-    // Just for testing
-    //printf("File Data: %s\n", file_data);
-    // Write to file here
-
-    // Parse the json string and turn it into a json object (REMEMBER: DELETE THIS OBJECT WHEN DONE!)
-
-    int counter = 0; // Counter for size
-                     // 
-    bzero(jstring, message->jsize); 
-    free(jstring); 
-    jstring = NULL;
-
-    
-    // Allocate receive buffer
-    size_t buffer_size = (message->fsize < MAX_BUFFER_SIZE) ? message->fsize : MAX_BUFFER_SIZE;
-    char *buffer = malloc(buffer_size);
-    bzero(buffer, buffer_size);
-    if (!buffer) {
-        perror("Failed to allocate buffer");
-        return NULL;
-    }
-    
-    // Track total bytes received 
-    size_t total_received = 0; 
-    cJSON* file_name = cJSON_GetObjectItemCaseSensitive(json_object, "name"); 
-    if (file_name != NULL && cJSON_IsString(file_name)) {
-        printf("Name: %s\n", file_name->valuestring);
-    }
-
-    
-    
-    int fd_write; 
-    char *save_location;
-    // Check if the location exists
-
-    if(1 == w_flag){
-        struct stat st_loc = {0};
-
-        char *base_location = "./testcpy/";
-        if(l_flag)
-            base_location = write_location;
-            
-
-        if (stat(base_location, &st_loc) == -1) {
-            // Directory doesn't exist
-            //
-            //mkdir(base_location, 0700);
-            printf("Error: Write path %s doesn't exist!\n", base_location);
-            exit(1);
-        }
-        save_location = savePath(file_name->valuestring, base_location); 
-        printf("Save Location: %s\n", save_location);
-        fd_write = open(save_location, O_WRONLY| O_CREAT |O_TRUNC, 0644);
-        if (fd_write < 0){
-            perror("fd open failure");
-            exit(1);
-        }
-
-    }
-
-    
-    ssize_t total_written = 0; 
-    // Receive loop 
-    while (total_received < message->fsize){
-        // Calculate remaining time to receive 
-        size_t remaining = message->fsize - total_received; 
-        size_t to_receive =  (remaining < buffer_size) ? remaining : buffer_size;
-
-        
-        // wait for socket to be ready 
-        fd_set read_fds; 
-        struct timeval timeout; 
-        FD_ZERO(&read_fds); 
-        FD_SET (client_socket, &read_fds); 
-        timeout.tv_sec = 30; // 30 sec timeout
-        timeout.tv_usec = 0; 
-        
-        int select_result = select(client_socket + 1, &read_fds, NULL, NULL, &timeout); 
-        if(select_result <= 0){
-            perror("select() failed or timed out"); 
-            // free(buffer); 
-            return NULL; 
-        }
-        // Receive data in chunks 
-        ssize_t bytes_received = 0; 
-        while (bytes_received < to_receive){
-            check_server_socket(client_socket, 12);
-            // if (total_received >= message->fsize) { // Check inside the loop
-            //     break; // Exit the inner loop if done
-            // }
-            ssize_t result = recv(client_socket, buffer + bytes_received, to_receive - bytes_received, 0);
-            if (result <= 0){
-                if (0 == result){
-                    printf("Connection closed by peer\n"); 
-                }else{
-                    perror("recv() failed"); 
-                }
-                // free(buffer); 
-                // buffer = NULL; 
-                return NULL;  
-            }
-            bytes_received += result; 
-            // total_received += result; 
-            // printf("bytes_received: %lu\n", bytes_received);
-
-        }
-        
-        // Process the received chunk here (write to file) 
-        total_received += bytes_received; 
-        if(1 == w_flag){
-            ssize_t written = write(fd_write, buffer, bytes_received);
-            if(written != bytes_received){
-                close(fd_write); 
-                if(written == -1){
-                    perror("writing error");
-                    exit(1);
-                }
-                printf("Error when writing: Bytes received and bytes written are not equal. Received: %ld, Written: %ld\n", bytes_received, written);
-                exit(1);
-            }
-            total_written += written;            
-            written = 0;
-        }
 
 
 
-        
-        float percent = 100 * ((double)total_received/message->fsize);
-        printf("Progress: %zu/%lu (%.1f%%) bytes\n", total_received, message->fsize, percent);
-    }
-    
-    unsigned char* fhash;
-    printf("Successfully received: %lu bytes\n", total_received);
-    if (1 == w_flag){
-        printf("Successfully wrote: %lu bytes to %s\n", total_written, save_location);
-        fhash = genHash(save_location); 
-        free(save_location);
-    }else{
-        fhash = NULL; 
-    }
-    
 
 
-
-    size_t extra_bytes = 0; 
-    ssize_t result; 
-
-    // Clean up 
-    explicit_bzero(buffer, buffer_size); 
-    free(buffer); 
-    buffer = NULL; 
-
-    cJSON_Delete(json_object);
-    json_object = NULL; 
-    close(fd_write); 
-
-    save_location = NULL;
-    
-
-    return fhash; 
-
-}
 
 OperationFunc getOperation(uint64_t op){
     OperationFunc *func;
@@ -504,17 +511,17 @@ uint64_s split_u64(uint64_t val){
 
 
 
-
 // int deserialize_header(struct MessageHeader *mess){
 int deserialize_header(struct Message *mess){
-    uint64_s val = split_u64(mess->fsize);
+    uint64_s val = split_u64(mess->total_transfered);
 
     mess->operation = ntohl(mess->operation); 
     mess->size = ntohl(mess->size);
     mess->jsize = ntohl(mess->jsize);
+    mess->dsize = ntohl(mess->dsize);
     val.lower = ntohl(val.lower); 
     val.upper = ntohl(val.upper);
-    mess->fsize = combine_u32(val.upper, val.lower); 
+    mess->total_transfered = combine_u32(val.upper, val.lower); 
     
     return 0; 
 }
@@ -557,6 +564,7 @@ void handle_client(void *sock){
         // printf("Sock check (After): %d\n", sock_check);
         printf("Waiting for client...\n");
         numbytes = recv(client_socket, buffer, BUF_SIZE, 0);
+        printf("Received: %d\n", numbytes);
         if(numbytes == -1){
             perror("recv"); 
             close(client_socket); 
@@ -578,9 +586,11 @@ void handle_client(void *sock){
         offset += sizeof(uint32_t);
         memcpy(&client_message->size, buffer + offset, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-        memcpy(&client_message->jsize, buffer + offset, sizeof(uint32_t));
+        memcpy(&client_message->dsize, buffer + offset, sizeof(uint32_t));
         offset += sizeof(uint32_t);
-        memcpy(&client_message->fsize, buffer + offset, sizeof(uint64_t)); 
+        memcpy(&client_message->jsize, buffer + offset, sizeof(uint64_t)); 
+        offset += sizeof(uint32_t);
+        memcpy(&client_message->total_transfered, buffer + offset, sizeof(uint64_t)); 
         offset += sizeof(uint64_t);
     
         // printf("sizeof message header: %lu\n", sizeof(struct MessageHeader));
@@ -588,7 +598,7 @@ void handle_client(void *sock){
         
         
 
-        printf("Operation: %u\nSize: %u\nJsize: %u\nFsize: %lu\n", client_message->operation, client_message->size, client_message->jsize, client_message->fsize);
+        printf("Operation: %u\nSize: %u\nJsize: %u\nTotal Transfered: %lu\nData Size: %u\n", client_message->operation, client_message->size, client_message->jsize, client_message->total_transfered, client_message->dsize);
         // printf("Buffer: %s\n", buffer + sizeof(struct MessageHeader));
 
         if(client_message->operation > 3){
@@ -602,6 +612,7 @@ void handle_client(void *sock){
         
         // If the client is sending a file 
         // if(client_message->operation == FILE_TRANSFER){
+        //     printf("Here\n");
             // handle_file_transfer(&client_socket, client_message);
             
             // char *jstring = malloc(client_message->jsize + 1); 
@@ -674,7 +685,7 @@ void handle_client(void *sock){
 }
 
 
-#ifdef TEST_SERVER
+// #ifdef TEST_SERVER
 int main(int argc, char *argv[]){
 
     int opt; 
@@ -700,6 +711,8 @@ int main(int argc, char *argv[]){
                 break; 
         }
     }
+    
+
 
 
     printf("NT Server started\n"); 
@@ -844,4 +857,4 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-#endif
+// #endif

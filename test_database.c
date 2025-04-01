@@ -145,10 +145,26 @@ int main(int argc, char *argv[]){
         createTableParent(db); 
  
         showTableItems(db, "T1"); 
+
+        cJSON *root; 
+        readConfig(&root); 
+        
+        char *json_string = cJSON_Print(root); 
+        printf("%s\n", json_string); 
+        
+        cJSON *remote_item = cJSON_GetObjectItemCaseSensitive(root, "remote_addr"); 
+
+        printf("Remote address (from config.json): %s\n", remote_item->valuestring);
+        
+        
+        cJSON_Delete(root); 
+        
+
+
+
+
         sqlite3_close(db); 
-
         printf("Closed database successfully\n"); 
-
 
 
         

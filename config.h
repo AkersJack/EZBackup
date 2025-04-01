@@ -38,7 +38,7 @@ int buildConfig();
  * - This function should take in a cjson object and that object should be used 
  * to store the information from the json file. 
 */
-int readConfig();
+int readConfig(cJSON **obj);
 
 /* 
  * Write changes to the config file 
@@ -54,8 +54,6 @@ int writeConfig();
  * This gets called in initConfig()
 */
 int checkFile(); 
-
-
 
 
 
