@@ -23,12 +23,13 @@ add_executable(ezBackup main.c tools.c database.c)
 target_link_libraries(ezBackup PRIVATE archive PRIVATE sqlite3)
 
 # Server 
-add_executable(server server.c)
+add_executable(server test_server.c config.c )
 target_link_libraries(server PRIVATE archive PRIVATE cjson PRIVATE crypto)
 
 # Database 
 add_executable(database test_database.c database.c tools.c config.c)
 target_link_libraries(database PRIVATE sqlite3 PRIVATE cjson)
+
 
 # Enable debugging
 add_compile_options(-g)

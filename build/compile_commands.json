@@ -1,0 +1,62 @@
+[
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/ezBackup.dir/main.c.o -c /home/jack/Documents/ezb/EZBackup-2/main.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/main.c",
+  "output": "CMakeFiles/ezBackup.dir/main.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/ezBackup.dir/tools.c.o -c /home/jack/Documents/ezb/EZBackup-2/tools.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/tools.c",
+  "output": "CMakeFiles/ezBackup.dir/tools.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/ezBackup.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/database.c",
+  "output": "CMakeFiles/ezBackup.dir/database.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/server.dir/test_server.c.o -c /home/jack/Documents/ezb/EZBackup-2/test_server.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/test_server.c",
+  "output": "CMakeFiles/server.dir/test_server.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/server.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
+  "output": "CMakeFiles/server.dir/config.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -g -o CMakeFiles/database.dir/test_database.c.o -c /home/jack/Documents/ezb/EZBackup-2/test_database.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/test_database.c",
+  "output": "CMakeFiles/database.dir/test_database.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -g -o CMakeFiles/database.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/database.c",
+  "output": "CMakeFiles/database.dir/database.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -g -o CMakeFiles/database.dir/tools.c.o -c /home/jack/Documents/ezb/EZBackup-2/tools.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/tools.c",
+  "output": "CMakeFiles/database.dir/tools.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -g -o CMakeFiles/database.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
+  "output": "CMakeFiles/database.dir/config.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -g -o CMakeFiles/config.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
+  "output": "CMakeFiles/config.dir/config.c.o"
+}
+]

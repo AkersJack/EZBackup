@@ -6,12 +6,13 @@
                 "${workspaceFolder}/**"
             ],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "${default}",
+            "cStandard": "c17",
             "cppStandard": "${default}",
-            "intelliSenseMode": "linux-gcc-x64",
+            "intelliSenseMode": "${default}",
             "compilerArgs": [
                 ""
-            ]
+            ],
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

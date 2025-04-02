@@ -567,6 +567,7 @@ config.o: config.c.o
 
 # target to build an object file
 config.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.o
 .PHONY : config.c.o
@@ -576,6 +577,7 @@ config.i: config.c.i
 
 # target to preprocess a source file
 config.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.i
 .PHONY : config.c.i
@@ -585,6 +587,7 @@ config.s: config.c.s
 
 # target to generate assembly for a file
 config.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.s
 .PHONY : config.c.s
@@ -640,30 +643,6 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/main.c.s
 .PHONY : main.c.s
 
-server.o: server.c.o
-.PHONY : server.o
-
-# target to build an object file
-server.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.o
-.PHONY : server.c.o
-
-server.i: server.c.i
-.PHONY : server.i
-
-# target to preprocess a source file
-server.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.i
-.PHONY : server.c.i
-
-server.s: server.c.s
-.PHONY : server.s
-
-# target to generate assembly for a file
-server.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.s
-.PHONY : server.c.s
-
 test_database.o: test_database.c.o
 .PHONY : test_database.o
 
@@ -687,6 +666,30 @@ test_database.s: test_database.c.s
 test_database.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/test_database.c.s
 .PHONY : test_database.c.s
+
+test_server.o: test_server.c.o
+.PHONY : test_server.o
+
+# target to build an object file
+test_server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/test_server.c.o
+.PHONY : test_server.c.o
+
+test_server.i: test_server.c.i
+.PHONY : test_server.i
+
+# target to preprocess a source file
+test_server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/test_server.c.i
+.PHONY : test_server.c.i
+
+test_server.s: test_server.c.s
+.PHONY : test_server.s
+
+# target to generate assembly for a file
+test_server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/test_server.c.s
+.PHONY : test_server.c.s
 
 tools.o: tools.c.o
 .PHONY : tools.o
@@ -767,12 +770,12 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... server.o"
-	@echo "... server.i"
-	@echo "... server.s"
 	@echo "... test_database.o"
 	@echo "... test_database.i"
 	@echo "... test_database.s"
+	@echo "... test_server.o"
+	@echo "... test_server.i"
+	@echo "... test_server.s"
 	@echo "... tools.o"
 	@echo "... tools.i"
 	@echo "... tools.s"
