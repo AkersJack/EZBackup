@@ -1,0 +1,1 @@
+/usr/bin/cc -g -O0 -g CMakeFiles/testing.dir/test.c.o -o testing

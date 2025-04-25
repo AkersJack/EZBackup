@@ -147,6 +147,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named testing
+
+# Build rule for target.
+testing: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testing
+.PHONY : testing
+
+# fast build rule for target.
+testing/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/build
+.PHONY : testing/fast
+
+#=============================================================================
 # Target rules for targets named ezBackup
 
 # Build rule for target.
@@ -171,6 +184,32 @@ server: cmake_check_build_system
 server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
 .PHONY : server/fast
+
+#=============================================================================
+# Target rules for targets named menu
+
+# Build rule for target.
+menu: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 menu
+.PHONY : menu
+
+# fast build rule for target.
+menu/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/build
+.PHONY : menu/fast
+
+#=============================================================================
+# Target rules for targets named sftp
+
+# Build rule for target.
+sftp: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sftp
+.PHONY : sftp
+
+# fast build rule for target.
+sftp/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/build
+.PHONY : sftp/fast
 
 #=============================================================================
 # Target rules for targets named database
@@ -568,6 +607,7 @@ config.o: config.c.o
 # target to build an object file
 config.c.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.o
 .PHONY : config.c.o
@@ -578,6 +618,7 @@ config.i: config.c.i
 # target to preprocess a source file
 config.c.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.i
 .PHONY : config.c.i
@@ -588,6 +629,7 @@ config.s: config.c.s
 # target to generate assembly for a file
 config.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.s
 .PHONY : config.c.s
@@ -643,6 +685,102 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/main.c.s
 .PHONY : main.c.s
 
+menu.o: menu.c.o
+.PHONY : menu.o
+
+# target to build an object file
+menu.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/menu.c.o
+.PHONY : menu.c.o
+
+menu.i: menu.c.i
+.PHONY : menu.i
+
+# target to preprocess a source file
+menu.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/menu.c.i
+.PHONY : menu.c.i
+
+menu.s: menu.c.s
+.PHONY : menu.s
+
+# target to generate assembly for a file
+menu.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/menu.c.s
+.PHONY : menu.c.s
+
+server.o: server.c.o
+.PHONY : server.o
+
+# target to build an object file
+server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.o
+.PHONY : server.c.o
+
+server.i: server.c.i
+.PHONY : server.i
+
+# target to preprocess a source file
+server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.i
+.PHONY : server.c.i
+
+server.s: server.c.s
+.PHONY : server.s
+
+# target to generate assembly for a file
+server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.s
+.PHONY : server.c.s
+
+sftp.o: sftp.c.o
+.PHONY : sftp.o
+
+# target to build an object file
+sftp.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/sftp.c.o
+.PHONY : sftp.c.o
+
+sftp.i: sftp.c.i
+.PHONY : sftp.i
+
+# target to preprocess a source file
+sftp.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/sftp.c.i
+.PHONY : sftp.c.i
+
+sftp.s: sftp.c.s
+.PHONY : sftp.s
+
+# target to generate assembly for a file
+sftp.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/sftp.c.s
+.PHONY : sftp.c.s
+
+test.o: test.c.o
+.PHONY : test.o
+
+# target to build an object file
+test.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/test.c.o
+.PHONY : test.c.o
+
+test.i: test.c.i
+.PHONY : test.i
+
+# target to preprocess a source file
+test.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/test.c.i
+.PHONY : test.c.i
+
+test.s: test.c.s
+.PHONY : test.s
+
+# target to generate assembly for a file
+test.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/test.c.s
+.PHONY : test.c.s
+
 test_database.o: test_database.c.o
 .PHONY : test_database.o
 
@@ -690,6 +828,30 @@ test_server.s: test_server.c.s
 test_server.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/test_server.c.s
 .PHONY : test_server.c.s
+
+test_sftp.o: test_sftp.c.o
+.PHONY : test_sftp.o
+
+# target to build an object file
+test_sftp.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/test_sftp.c.o
+.PHONY : test_sftp.c.o
+
+test_sftp.i: test_sftp.c.i
+.PHONY : test_sftp.i
+
+# target to preprocess a source file
+test_sftp.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/test_sftp.c.i
+.PHONY : test_sftp.c.i
+
+test_sftp.s: test_sftp.c.s
+.PHONY : test_sftp.s
+
+# target to generate assembly for a file
+test_sftp.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/test_sftp.c.s
+.PHONY : test_sftp.c.s
 
 tools.o: tools.c.o
 .PHONY : tools.o
@@ -760,7 +922,10 @@ help:
 	@echo "... config"
 	@echo "... database"
 	@echo "... ezBackup"
+	@echo "... menu"
 	@echo "... server"
+	@echo "... sftp"
+	@echo "... testing"
 	@echo "... config.o"
 	@echo "... config.i"
 	@echo "... config.s"
@@ -770,12 +935,27 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... menu.o"
+	@echo "... menu.i"
+	@echo "... menu.s"
+	@echo "... server.o"
+	@echo "... server.i"
+	@echo "... server.s"
+	@echo "... sftp.o"
+	@echo "... sftp.i"
+	@echo "... sftp.s"
+	@echo "... test.o"
+	@echo "... test.i"
+	@echo "... test.s"
 	@echo "... test_database.o"
 	@echo "... test_database.i"
 	@echo "... test_database.s"
 	@echo "... test_server.o"
 	@echo "... test_server.i"
 	@echo "... test_server.s"
+	@echo "... test_sftp.o"
+	@echo "... test_sftp.i"
+	@echo "... test_sftp.s"
 	@echo "... tools.o"
 	@echo "... tools.i"
 	@echo "... tools.s"

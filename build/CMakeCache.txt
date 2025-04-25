@@ -288,6 +288,12 @@ MEMORYCHECK_COMMAND:FILEPATH=/usr/bin/valgrind
 //File that contains suppressions for the memory checker
 MEMORYCHECK_SUPPRESSIONS_FILE:FILEPATH=
 
+//Arguments to supply to pkg-config
+PKG_CONFIG_ARGN:STRING=
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
 //Name of the computer/site where compile is being run
 SITE:STRING=TheBeast
 
@@ -302,6 +308,9 @@ ezBackup_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 ezBackup_SOURCE_DIR:STATIC=/home/jack/Documents/ezb/EZBackup-2
+
+//Path to a library.
+pkgcfg_lib_LIBSSH2_ssh2:FILEPATH=/usr/lib/x86_64-linux-gnu/libssh2.so
 
 
 ########################
@@ -481,8 +490,45 @@ CTEST_SUBMIT_RETRY_DELAY-ADVANCED:INTERNAL=1
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
 //Details about finding LibArchive
 FIND_PACKAGE_MESSAGE_DETAILS_LibArchive:INTERNAL=[/usr/lib/x86_64-linux-gnu/libarchive.so][/usr/include][v3.7.4()]
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v1.8.1()]
 //ADVANCED property for variable: GITCOMMAND
 GITCOMMAND-ADVANCED:INTERNAL=1
+LIBSSH2_CFLAGS:INTERNAL=-I/usr/include
+LIBSSH2_CFLAGS_I:INTERNAL=
+LIBSSH2_CFLAGS_OTHER:INTERNAL=
+LIBSSH2_FOUND:INTERNAL=1
+LIBSSH2_INCLUDEDIR:INTERNAL=/usr/include
+LIBSSH2_INCLUDE_DIRS:INTERNAL=/usr/include
+LIBSSH2_LDFLAGS:INTERNAL=-L/usr/lib/x86_64-linux-gnu;-lssh2
+LIBSSH2_LDFLAGS_OTHER:INTERNAL=
+LIBSSH2_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+LIBSSH2_LIBRARIES:INTERNAL=ssh2
+LIBSSH2_LIBRARY_DIRS:INTERNAL=/usr/lib/x86_64-linux-gnu
+LIBSSH2_LIBS:INTERNAL=
+LIBSSH2_LIBS_L:INTERNAL=
+LIBSSH2_LIBS_OTHER:INTERNAL=
+LIBSSH2_LIBS_PATHS:INTERNAL=
+LIBSSH2_MODULE_NAME:INTERNAL=libssh2
+LIBSSH2_PREFIX:INTERNAL=/usr
+LIBSSH2_STATIC_CFLAGS:INTERNAL=-I/usr/include
+LIBSSH2_STATIC_CFLAGS_I:INTERNAL=
+LIBSSH2_STATIC_CFLAGS_OTHER:INTERNAL=
+LIBSSH2_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include
+LIBSSH2_STATIC_LDFLAGS:INTERNAL=-L/usr/lib/x86_64-linux-gnu;-lssh2;-L/usr/lib/x86_64-linux-gnu;-lssl;-L/usr/lib/x86_64-linux-gnu;-lcrypto;-lgpg-error;-L/usr/lib/x86_64-linux-gnu;-lssl;-L/usr/lib/x86_64-linux-gnu;-lz;-lzstd;-ldl;-pthread;-lcrypto;-lzstd;-ldl;-pthread;-lz
+LIBSSH2_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread;-pthread
+LIBSSH2_STATIC_LIBDIR:INTERNAL=
+LIBSSH2_STATIC_LIBRARIES:INTERNAL=ssh2;ssl;crypto;gpg-error;ssl;z;zstd;dl;crypto;zstd;dl;z
+LIBSSH2_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu;/usr/lib/x86_64-linux-gnu
+LIBSSH2_STATIC_LIBS:INTERNAL=
+LIBSSH2_STATIC_LIBS_L:INTERNAL=
+LIBSSH2_STATIC_LIBS_OTHER:INTERNAL=
+LIBSSH2_STATIC_LIBS_PATHS:INTERNAL=
+LIBSSH2_VERSION:INTERNAL=1.11.0
+LIBSSH2_libssh2_INCLUDEDIR:INTERNAL=
+LIBSSH2_libssh2_LIBDIR:INTERNAL=
+LIBSSH2_libssh2_PREFIX:INTERNAL=
+LIBSSH2_libssh2_VERSION:INTERNAL=
 //ADVANCED property for variable: LibArchive_INCLUDE_DIR
 LibArchive_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: LibArchive_LIBRARY
@@ -493,8 +539,17 @@ MAKECOMMAND-ADVANCED:INTERNAL=1
 MEMORYCHECK_COMMAND-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: MEMORYCHECK_SUPPRESSIONS_FILE
 MEMORYCHECK_SUPPRESSIONS_FILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_ARGN
+PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: SITE
 SITE-ADVANCED:INTERNAL=1
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
+__pkg_config_arguments_LIBSSH2:INTERNAL=REQUIRED;libssh2
+__pkg_config_checked_LIBSSH2:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_LIBSSH2_ssh2
+pkgcfg_lib_LIBSSH2_ssh2-ADVANCED:INTERNAL=1
+prefix_result:INTERNAL=/usr/lib/x86_64-linux-gnu
 

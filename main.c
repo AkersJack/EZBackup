@@ -402,7 +402,14 @@ int serialize_Message(struct Message *s, char *buffer){
     return 0;  
 }
 
-
+/* Return NULL PTR on errors */
+cJSON* buildJSON(){
+        cJSON *root = cJSON_CreateObject(); 
+        char *testString = "TestString";
+        cJSON_AddStringToObject(root, "Test", testString); 
+        return root; 
+        
+}
 
 int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         struct archive *a; 
@@ -422,7 +429,8 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         msg->jsize = 0;
         msg->dsize = 10240;
 
-        char *header_buff = malloc(msg->size);
+        // char *header_buff = malloc(msg->size);
+        char *header_buff; 
 
         char output_filename[] = "./new_test.tar.zst";
         char output_tablename[] = "./new_test.db";
@@ -436,13 +444,27 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         int err = createTableData(db, output_tablename); 
         if(err == 1){
                 printf("Need to rename the table\n");
-        } 
+        }
         
         
 
         size_t header_bytes_sent = 0;
 
-        serialize_Message(msg, header_buff);
+        // serialize_Message(msg, header_buff);
+
+        cJSON *jsonObject = buildJSON(); 
+        /* Maybe use protobuf for smaller JSON */
+        char *json_string = cJSON_PrintUnformatted(jsonObject); 
+        msg->jsize = strlen(json_string); 
+
+        uint32_t jsize = htonl(msg->jsize); 
+        
+        /* + 1 for the null termination character which strlen() doesn't count */
+        header_buff = malloc(sizeof(uint32_t) + msg->jsize + 1); 
+        
+        
+
+        
 
         // Send the big header
         if ((header_bytes_sent = send(socket, header_buff, msg->size, 0)) == -1) {

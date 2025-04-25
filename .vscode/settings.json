@@ -58,7 +58,9 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "C_Cpp.default.compilerPath": "/usr/bin/gcc",
   "files.associations": {
-    "tools.h": "c"
+    "tools.h": "c",
+    "initializer_list": "c",
+    "limits": "c"
   },
   "C_Cpp.errorSquiggles": "disabled"
 }

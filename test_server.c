@@ -1,28 +1,27 @@
 #include "server.h"
 #include "config.h"
 #include <netdb.h>
-
-
+#include <sys/socket.h> 
 
 int main(int argc, char *argv[]){
 
+        cJSON *config = cJSON_CreateObject(); 
+        readConfig(&config);
 
-        char buf[BUF_SIZE]; 
-        ssize_t nread; 
-        socklen_t peer_addrlen; 
-        struct addrinfo hints; 
-        struct addrinfo *result, *rp;
+        cJSON *cjson_port = cJSON_GetObjectItemCaseSensitive(config, "port");
+        char *port = cjson_port->valuestring;
+        printf("Port: %s\n", port);
 
-        memset(&hints, 0, sizeof(hints));
-        hints.ai_family = AF_UNSPEC;      // Allow IPv4 or IPv6
-        hints.ai_socktype = SOCK_STREAM;  // Socket Stream
-        hints.ai_flags = AI_PASSIVE;
-        hints.ai_protocol = IPPROTO_TCP;  // TCP protocol
-        hints.ai_canonname = NULL;
-        hints.ai_addr = NULL;
-        hints.ai_next = NULL;
-        
-        
+        int sfd = 0; 
+
+        initServer(port, &sfd);
+        printf("Socket: %d\n", sfd); 
+        startServer(sfd); 
+
+
+        // close(new_fd); 
+        close(sfd); 
+        cJSON_Delete(config); 
         printf("Server Ran!\n");
 
         return 0; 

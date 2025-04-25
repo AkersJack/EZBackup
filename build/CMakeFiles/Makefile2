@@ -63,8 +63,11 @@ CMAKE_BINARY_DIR = /home/jack/Documents/ezb/EZBackup-2/build
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/testing.dir/all
 all: CMakeFiles/ezBackup.dir/all
 all: CMakeFiles/server.dir/all
+all: CMakeFiles/menu.dir/all
+all: CMakeFiles/sftp.dir/all
 all: CMakeFiles/database.dir/all
 all: CMakeFiles/config.dir/all
 .PHONY : all
@@ -74,8 +77,11 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
+clean: CMakeFiles/testing.dir/clean
 clean: CMakeFiles/ezBackup.dir/clean
 clean: CMakeFiles/server.dir/clean
+clean: CMakeFiles/menu.dir/clean
+clean: CMakeFiles/sftp.dir/clean
 clean: CMakeFiles/database.dir/clean
 clean: CMakeFiles/config.dir/clean
 clean: CMakeFiles/Experimental.dir/clean
@@ -107,6 +113,32 @@ clean: CMakeFiles/ContinuousCoverage.dir/clean
 clean: CMakeFiles/ContinuousMemCheck.dir/clean
 clean: CMakeFiles/ContinuousSubmit.dir/clean
 .PHONY : clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/testing.dir
+
+# All Build rule for target.
+CMakeFiles/testing.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=22,23 "Built target testing"
+.PHONY : CMakeFiles/testing.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/testing.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testing.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
+.PHONY : CMakeFiles/testing.dir/rule
+
+# Convenience name for target.
+testing: CMakeFiles/testing.dir/rule
+.PHONY : testing
+
+# clean rule for target.
+CMakeFiles/testing.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/clean
+.PHONY : CMakeFiles/testing.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/ezBackup.dir
@@ -141,12 +173,12 @@ CMakeFiles/ezBackup.dir/clean:
 CMakeFiles/server.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=12,13,14 "Built target server"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=14,15,16,17 "Built target server"
 .PHONY : CMakeFiles/server.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/server.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/server.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
 .PHONY : CMakeFiles/server.dir/rule
@@ -159,6 +191,58 @@ server: CMakeFiles/server.dir/rule
 CMakeFiles/server.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/clean
 .PHONY : CMakeFiles/server.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/menu.dir
+
+# All Build rule for target.
+CMakeFiles/menu.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=12,13 "Built target menu"
+.PHONY : CMakeFiles/menu.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/menu.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/menu.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
+.PHONY : CMakeFiles/menu.dir/rule
+
+# Convenience name for target.
+menu: CMakeFiles/menu.dir/rule
+.PHONY : menu
+
+# clean rule for target.
+CMakeFiles/menu.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/clean
+.PHONY : CMakeFiles/menu.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/sftp.dir
+
+# All Build rule for target.
+CMakeFiles/sftp.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=18,19,20,21 "Built target sftp"
+.PHONY : CMakeFiles/sftp.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/sftp.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/sftp.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles 0
+.PHONY : CMakeFiles/sftp.dir/rule
+
+# Convenience name for target.
+sftp: CMakeFiles/sftp.dir/rule
+.PHONY : sftp
+
+# clean rule for target.
+CMakeFiles/sftp.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/clean
+.PHONY : CMakeFiles/sftp.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/database.dir

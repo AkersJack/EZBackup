@@ -7,6 +7,7 @@ project(ezBackup
         DESCRIPTION "An easy backup solution")
 
 
+
 # Ensures CMake is generating debug builds by default
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -16,6 +17,9 @@ set(CMAKE_BUILD_TYPE Debug)
 # Find libarchive
 find_package(LibArchive REQUIRED)
 
+# Test File (general testing going to switch to try to test everything here)
+add_executable(testing test.c)
+
 # Main (client)
 add_executable(ezBackup main.c tools.c database.c)
 
@@ -23,8 +27,19 @@ add_executable(ezBackup main.c tools.c database.c)
 target_link_libraries(ezBackup PRIVATE archive PRIVATE sqlite3)
 
 # Server 
-add_executable(server test_server.c config.c )
+add_executable(server test_server.c config.c server.c)
 target_link_libraries(server PRIVATE archive PRIVATE cjson PRIVATE crypto)
+
+# Menu 
+add_executable(menu menu.c)
+target_link_libraries(menu PRIVATE ncurses)
+
+# SFTP 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBSSH2 REQUIRED libssh2)
+add_executable(sftp test_sftp.c sftp.c config.c)
+target_include_directories(sftp PRIVATE ${LIBSSH2_INCLUDE_DIRS})
+target_link_libraries(sftp PRIVATE archive PRIVATE cjson PRIVATE crypto PRIVATE ${LIBSSH2_LIBRARIES})
 
 # Database 
 add_executable(database test_database.c database.c tools.c config.c)
