@@ -1,1 +1,1 @@
-/usr/bin/cc -g -O0 -g CMakeFiles/sftp.dir/test_sftp.c.o CMakeFiles/sftp.dir/sftp.c.o CMakeFiles/sftp.dir/config.c.o -o sftp  -larchive -lcjson -lcrypto -lssh2
+/usr/bin/cc -g -O0 -g CMakeFiles/sftp.dir/test_sftp.c.o CMakeFiles/sftp.dir/sftp.c.o CMakeFiles/sftp.dir/config.c.o -o sftp  -larchive -lcjson -lcrypto -lssh2 

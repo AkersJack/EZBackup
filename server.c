@@ -99,15 +99,23 @@ int readClientData(char *buffer){
 
         memcpy(&json_size, buffer + offset, sizeof(uint32_t)); 
         json_size = ntohl(json_size); 
+        offset += sizeof(u_int32_t); 
+        char *json_string; 
+        json_string = buffer + offset; 
+
+        printf("Json string: %s\n", json_string); 
         
 
         
         printf("Json Size: %u\n",  json_size); 
+
         
         /* 
          * Read Json Data here
         */
+        cJSON *root = cJSON_Parse(json_string);
         
+
 
 
 

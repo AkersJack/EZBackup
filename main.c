@@ -321,16 +321,16 @@ int sendBaseHeader(int sock, uint32_t length, uint32_t eof){
 }
 
 // This one is for streaming over a socket
-ssize_t custom_write_cb2(struct archive * a, void *client_data, const void *buffer, size_t length){
+ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffer, size_t length){
         struct custom_write_data *mydata = client_data;
-        
+        printf("Using custom_write_cb2\n");
         
         // size_t written = fwrite(buffer, 1, length, mydata->output_file);
         
-        sendBaseHeader(mydata->sock, length, 0);
+        //sendBaseHeader(mydata->sock, length, 0);
 
         // TODO: Error checking
-        size_t written = send(mydata->sock, buffer, length, 0);
+        ssize_t written = send(mydata->sock, buffer, length, 0);
         if(written < 0){
             perror("Socket callback send error");
         }
@@ -411,6 +411,7 @@ cJSON* buildJSON(){
         
 }
 
+
 int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         struct archive *a; 
         struct archive *dir_a; 
@@ -455,12 +456,21 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         cJSON *jsonObject = buildJSON(); 
         /* Maybe use protobuf for smaller JSON */
         char *json_string = cJSON_PrintUnformatted(jsonObject); 
+
+
         msg->jsize = strlen(json_string); 
+
+
+        /* + 1 for the null termination character which strlen() doesn't count */
+        msg->jsize++; 
+
 
         uint32_t jsize = htonl(msg->jsize); 
         
-        /* + 1 for the null termination character which strlen() doesn't count */
-        header_buff = malloc(sizeof(uint32_t) + msg->jsize + 1); 
+        header_buff = malloc(sizeof(uint32_t) + msg->jsize); 
+
+        memcpy(header_buff, &jsize, sizeof(uint32_t)); 
+        memcpy(header_buff + sizeof(uint32_t), json_string, msg->jsize);
         
         
 
@@ -476,6 +486,10 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         
         free(header_buff);
         printf("Header bytes_sent: %ld\n", header_bytes_sent);
+
+
+        // Using this for testing 
+        return 0; 
 
         // char output_filename[] = "/mnt/E66294026293D5A1/test_Jack_Windows_Backup.tar.zst"; 
         // char output_filename[] = "/mnt/E66294026293D5A1/testBackup.tar.zst"; 
@@ -642,7 +656,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         // fclose(mydata.output_file);
 
         printf("Successfully created compressed archive: %s\n", output_filename);
-        sendBaseHeader(socket, 0, 1234567890); // Let the server know the end of the file has been sent
+        //sendBaseHeader(socket, 0, 1234567890); // Let the server know the end of the file has been sent
 
         return 0;
 }
