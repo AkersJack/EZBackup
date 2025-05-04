@@ -86,7 +86,7 @@ int handle_client(int sock);
 /* 
  * Read the client message and store everything inside of the message object
 */
-int readClientData(char *buffer);
+int readClientData(char *buffer, int socket);
     
 
 

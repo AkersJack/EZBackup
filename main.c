@@ -235,6 +235,8 @@ struct fileContainer get_user_input_files(){
         
 }
 
+
+
 // Free user input here
 int freeUserInput(struct fileContainer *fc){
         for(int i = 0; i < fc->num_files; i++){
@@ -271,7 +273,8 @@ uint64_t combine_u32(uint32_t upper, uint32_t lower){
 
 struct custom_write_data{
         FILE *output_file; 
-        const char *output_filename;
+        const char *output_filename; 
+        //cJSON *cj_obj; // Cjson object 
         uint64_t *total_written; // For compressed size
         uint64_t *total_read; // For uncompressed size 
         int sock; // For socket
@@ -320,14 +323,141 @@ int sendBaseHeader(int sock, uint32_t length, uint32_t eof){
     return 0; 
 }
 
+unsigned char* hashString(const char *str){
+        
+        unsigned char *hash = malloc(MD5_DIGEST_LENGTH);
+        printf("%s\n", str); 
+        MD5_CTX md5; 
+        MD5_Init(&md5); 
+        MD5_Update(&md5, str, strlen(str)); 
+        MD5_Final(hash, &md5); 
+        return hash; 
+}
+
+void print_md5_hex(unsigned char *digest){
+        for(int i = 0; i < MD5_DIGEST_LENGTH; i++){
+                printf("%02x", digest[i]);
+        }
+        printf("\n"); 
+}
+
+/* Return NULL PTR on errors */
+cJSON* buildJSON(){
+        cJSON *root = cJSON_CreateObject(); 
+        char *testString = "TestString";
+        cJSON_AddStringToObject(root, "Test", testString); 
+        return root; 
+        
+}
+
+
+int initJSON(cJSON **obj){
+
+        return 0; 
+}
+
+int sendJSON(cJSON *obj, int socket){
+        char *header_buff; 
+        /* Maybe use protobuf for smaller JSON */
+        char *json_string = cJSON_PrintUnformatted(obj); 
+        size_t header_bytes_sent = 0;
+        size_t jsize = strlen(json_string); 
+        ssize_t numbytes; 
+        unsigned char client_digest[MD5_DIGEST_LENGTH]; 
+
+        /* + 1 for the null termination character which strlen() doesn't count */
+        jsize++; 
+
+        /* Hash json string then split the hash 
+         * The client needs to respond with the other half of the hash
+         * If the other half is wrong we know there is an error. 
+        */
+
+        
+
+
+
+        uint32_t jsize_net = htonl(jsize); 
+        
+        size_t size = sizeof(uint32_t) + jsize; 
+        header_buff = malloc(size); 
+
+        memcpy(header_buff, &jsize_net, sizeof(uint32_t)); 
+        memcpy(header_buff + sizeof(uint32_t), json_string, jsize);
+        
+        
+
+        unsigned char *digest = hashString(json_string);
+        // print_md5_hex(digest);
+
+        
+
+        // Send the big header
+        if ((header_bytes_sent = send(socket, header_buff, size, 0)) == -1) {
+                perror("send");
+                close(socket);  // Might not want to close (possibly try again)
+                free(header_buff);
+                exit(1);
+        }
+        // printf("Json string: %s\n", json_string); 
+        
+
+        // numbytes = recv(socket, client_digest, MD5_DIGEST_LENGTH, 0);
+        /* Client disconnects (not graceful)*/
+        // if (numbytes == -1) {
+        //         perror("recv");
+        //         return -1; // error -1 is client disconnect
+
+        // } else if (numbytes == 0) { /* Graceful disconnect */
+        //         printf("Lost connection to the server (Socked FD: %d).\n", socket);
+        //         return -1; 
+        // } 
+
+        // printf("Received: "); 
+        // print_md5_hex(client_digest);
+
+        // if(memcmp(digest, client_digest, MD5_DIGEST_LENGTH)){
+        //         perror("Client JSON hash and Server JSON Hash do not match!\n"); 
+        //         return 1; 
+        // }
+        
+        free(digest);
+        free(header_buff);
+        free(json_string);
+        printf("Header bytes_sent: %ld\n", header_bytes_sent);
+        printf("Json Size: %ld\n", jsize);
+        return 0; 
+
+}
+
 // This one is for streaming over a socket
 ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffer, size_t length){
         struct custom_write_data *mydata = client_data;
+        cJSON *root = cJSON_CreateObject(); 
+        int json_status; 
         printf("Using custom_write_cb2\n");
         
         // size_t written = fwrite(buffer, 1, length, mydata->output_file);
         
         //sendBaseHeader(mydata->sock, length, 0);
+        
+        cJSON_AddStringToObject(root, "Test", "TestString"); 
+        /* The conversion from size_t to double "could" cause issues*/
+        cJSON_AddNumberToObject(root, "size", length); 
+        /* Again this conversion could cause issues (possibly convert to string then back)*/
+        cJSON_AddNumberToObject(root, "total_written", *(mydata->total_written)); 
+
+        json_status = sendJSON(root, mydata->sock);
+
+        /* 
+         * This line should be changed to handle an error besides just exiting 
+        */
+        if(json_status != 0){
+                exit(1); 
+        }
+
+        // Create hash of buffer data and send it? Then check data received against other hash? 
+        
 
         // TODO: Error checking
         ssize_t written = send(mydata->sock, buffer, length, 0);
@@ -350,7 +480,9 @@ ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffe
 
         // printf("Total Written: %lu\t Total Read: %lu\t Compressed Size: %.2Lf%% of original\n", *(mydata->total_written), *(mydata->total_read), percent_comp);
         printf("Total Written: %.2lf %s\t Total Read: %.2lf %s\t Compressed Size: %.2Lf%% of original\n", sizeObj_1.size, sizeObj_1.units, sizeObj_2.size, sizeObj_2.units, percent_comp);
+
         
+        cJSON_Delete(root); 
 
         return written;
 }
@@ -402,14 +534,6 @@ int serialize_Message(struct Message *s, char *buffer){
     return 0;  
 }
 
-/* Return NULL PTR on errors */
-cJSON* buildJSON(){
-        cJSON *root = cJSON_CreateObject(); 
-        char *testString = "TestString";
-        cJSON_AddStringToObject(root, "Test", testString); 
-        return root; 
-        
-}
 
 
 int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
@@ -424,6 +548,8 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         int r; 
         uint64_t total_written = 0; 
         uint64_t total_read = 0;
+
+        // cJSON *root = cJSON_CreateObject(); 
         
         msg->size = (sizeof(struct Message)); 
         msg->total_transfered = 0; 
@@ -431,7 +557,6 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         msg->dsize = 10240;
 
         // char *header_buff = malloc(msg->size);
-        char *header_buff; 
 
         char output_filename[] = "./new_test.tar.zst";
         char output_tablename[] = "./new_test.db";
@@ -449,47 +574,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         
         
 
-        size_t header_bytes_sent = 0;
 
-        // serialize_Message(msg, header_buff);
-
-        cJSON *jsonObject = buildJSON(); 
-        /* Maybe use protobuf for smaller JSON */
-        char *json_string = cJSON_PrintUnformatted(jsonObject); 
-
-
-        msg->jsize = strlen(json_string); 
-
-
-        /* + 1 for the null termination character which strlen() doesn't count */
-        msg->jsize++; 
-
-
-        uint32_t jsize = htonl(msg->jsize); 
-        
-        header_buff = malloc(sizeof(uint32_t) + msg->jsize); 
-
-        memcpy(header_buff, &jsize, sizeof(uint32_t)); 
-        memcpy(header_buff + sizeof(uint32_t), json_string, msg->jsize);
-        
-        
-
-        
-
-        // Send the big header
-        if ((header_bytes_sent = send(socket, header_buff, msg->size, 0)) == -1) {
-                perror("send");
-                close(socket);  // Might not want to close (possibly try again)
-                free(header_buff);
-                exit(1);
-        }
-        
-        free(header_buff);
-        printf("Header bytes_sent: %ld\n", header_bytes_sent);
-
-
-        // Using this for testing 
-        return 0; 
 
         // char output_filename[] = "/mnt/E66294026293D5A1/test_Jack_Windows_Backup.tar.zst"; 
         // char output_filename[] = "/mnt/E66294026293D5A1/testBackup.tar.zst"; 
@@ -538,6 +623,7 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         archive_write_set_bytes_in_last_block(a, 1);
         // Setup custom write callback
         struct custom_write_data mydata;
+        // mydata.cj_obj = root; 
         mydata.total_read = &total_read;
         mydata.total_written = &total_written; 
         // mydata.output_file = fopen(output_filename, "wb");

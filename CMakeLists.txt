@@ -24,7 +24,7 @@ add_executable(testing test.c)
 add_executable(ezBackup main.c tools.c database.c)
 
 # Link executable with libarchive
-target_link_libraries(ezBackup PRIVATE archive PRIVATE sqlite3 PRIVATE cjson)
+target_link_libraries(ezBackup PRIVATE archive PRIVATE sqlite3 PRIVATE cjson PRIVATE crypto)
 
 # Server 
 add_executable(server test_server.c config.c server.c)

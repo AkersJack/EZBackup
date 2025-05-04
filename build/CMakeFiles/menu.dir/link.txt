@@ -1,1 +1,1 @@
-/usr/bin/cc -g -O0 -g CMakeFiles/menu.dir/menu.c.o -o menu  -lncurses 
+/usr/bin/cc -g -O0 -g CMakeFiles/menu.dir/menu.c.o -o menu  -lncurses

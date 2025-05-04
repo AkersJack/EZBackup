@@ -483,7 +483,7 @@ int serialize_MessageHeader(struct MessageHeader *s, char *buffer){
 
 typedef struct{
     uint32_t upper;  // Upper half of a uint64_t
-    uint32_t lower; // Lower half of a uint64_t
+    uint32_t lower; // Lower half of a uint64_t 
 }uint64_s;
 
 
