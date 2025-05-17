@@ -94,6 +94,20 @@ int initServer(char *port, int *sock){
         return 0;
 }
 
+size_t writeData(char *buff, size_t length, int fd){
+        size_t bytes_written = 0; 
+        while(bytes_written != length){
+                ssize_t written = write(fd, buff + bytes_written, length - bytes_written);    
+                if (written == -1){
+                        perror("Write error"); 
+                        return 0; 
+                }
+                bytes_written += written; 
+        }
+        return bytes_written; 
+
+}
+
 unsigned char* hashString(const char *str){
         
         unsigned char *hash = malloc(MD5_DIGEST_LENGTH);
@@ -112,48 +126,53 @@ void print_md5_hex(unsigned char *digest){
         printf("\n"); 
 }
 
-ssize_t recv_all(int sockfd, void *buf, size_t n) {
-        size_t total_received = 0;
-        ssize_t bytes_received;
-        char *ptr = (char*) buf; // Pointer to current position in buffer
-    
-        while (total_received < n) {
-            bytes_received = recv(sockfd, ptr + total_received, n - total_received, 0);
-    
-            if (bytes_received == -1) {
-                if (errno == EINTR) continue; // Interrupted by signal, try again
-                perror("recv_all");
-                return -1; // Real error
-            } else if (bytes_received == 0) {
-                // Peer disconnected gracefully
-                fprintf(stderr, "recv_all: Peer disconnected during read.\n");
-                return 0; // Indicate disconnection
-            }
-            total_received += bytes_received;
-        }
-        return total_received; // Should be equal to 'n' on success
-    }
-
-int readClientData(char *buffer, int socket){
-        int offset = 0; 
+// Need to open the file and close the file in the function that calls this function
+int readClientData(char *buffer, int socket, cJSON *metadata, int fd){
+        int offset = 0;
         uint32_t json_size; 
+        uint32_t jsize; 
         size_t buffsize = 10240; 
+        ssize_t numbytes = 0; 
+        size_t total_written = 0;
+        
+        // retrieve the json size from the buffer 
+        // memcpy(&jsize, buffer, sizeof(uint32_t)); 
         
 
-        printf("Json Size: %u\n",  json_size); 
-        memcpy(&json_size, buffer + offset, sizeof(uint32_t)); 
-        json_size = ntohl(json_size); 
+        // json_size = ntohl(jsize); 
+        // printf("Json Size: %u\n",  json_size); 
+        
+        // char *json_string = malloc(json_size); 
+        
 
-        offset += sizeof(u_int32_t); 
+        // retrieve the metadata from the buffer (the actual json file data)
+        // numbytes = recv(socket, json_string, json_size, 0);
+        // /* Client disconnects (not graceful)*/
+        // if (numbytes == -1) {
+        //         perror("recv");
+        //         return -1; // error -1 is client disconnect
+
+        // } else if (numbytes == 0) { /* Graceful disconnect */
+        //         printf("Lost connection to the server (Socked FD: %d).\n", socket);
+        //         return -1; 
+        // } 
+
+
+        // readMetadata(socket, &root);
+
+        // memcpy(&json_size, buffer + offset, sizeof(uint32_t)); 
+
+        // offset += sizeof(u_int32_t); 
         // Segmentation fault here
         // printf("json_size: %d\n", json_size); 
-        char *json_string = malloc(json_size); 
-        json_string = memcpy(json_string, buffer + offset, json_size);
-        ssize_t hash_check; 
+        // char *json_string = malloc(json_size); 
+        // json_string = memcpy(json_string, buffer + offset, json_size);
+        // ssize_t hash_check; 
         
-        printf("Header Bytes Received: %ld\n", sizeof(uint32_t) + json_size); 
+        // printf("Header Bytes Received: %ld\n", sizeof(uint32_t) + json_size); 
 
-        // printf("Json string: %s\n", json_string); 
+        // The sent json item should be sent as a json string (maybe a better way to do this)
+        // printf("JSON string: %s\n", json_string); 
         
 
         
@@ -177,19 +196,21 @@ int readClientData(char *buffer, int socket){
         
         /* 
          * Read Json Data here
+         * Convert that json string back into a json object
         */
         // Error check this
-        cJSON *root = cJSON_Parse(json_string);
-        if(root == NULL){
-                const char *error_ptr = cJSON_GetErrorPtr(); 
-                if (error_ptr != NULL){
-                        fprintf(stderr, "Error before: %s\n", error_ptr); 
-                }
-                return 1; // 1 is error
-        }
+        // cJSON *root = cJSON_Parse(json_string);
+        // if(root == NULL){
+        //         const char *error_ptr = cJSON_GetErrorPtr(); 
+        //         if (error_ptr != NULL){
+        //                 fprintf(stderr, "Error before: %s\n", error_ptr); 
+        //         }
+        //         return 1; // 1 is error
+        // }
+        
         
 
-        cJSON *_data_size = cJSON_GetObjectItemCaseSensitive(root, "size"); 
+        cJSON *_data_size = cJSON_GetObjectItemCaseSensitive(metadata, "size"); 
         double data_size = 0; 
         if(_data_size != NULL && cJSON_IsNumber(_data_size)){
                 data_size = _data_size->valuedouble; 
@@ -203,12 +224,31 @@ int readClientData(char *buffer, int socket){
         
         
         double received = 0;  
-        ssize_t numbytes; 
         char *newBuff = malloc(buffsize); 
 
+        // int fd; 
+        size_t written; 
+        
 
+        // char *save_location; 
+        
+        // cJSON *save_loc_obj = cJSON_GetObjectItemCaseSensitive(config, "backup_location");
+        // if(cJSON_IsString(save_loc_obj) && (save_loc_obj != NULL)){
+        //         save_location = save_loc_obj->valuestring; 
+        // }else{
+        //         perror("No save location set");
+        //         return 1;
+        // }
+        
 
+        // fd = open(save_location, O_WRONLY| O_CREAT |O_TRUNC, 0644);
+        // if (fd < 0){
+        //         perror("Failed to access save location");
+        //         return 1; 
+        // }
 
+        
+        // Now receive the actual data
         while(received < data_size){
                 bzero(newBuff, buffsize);
                 
@@ -228,12 +268,21 @@ int readClientData(char *buffer, int socket){
                 } 
                 received += numbytes;
                 printf("Received %lf/%lf bytes\n", received, data_size);
+                // written = writeData(newBuff, (size_t)numbytes, fd);
+                // total_written += written; 
+                // printf("total written: %zu\n", total_written);
+                // if(!written){
+                //         perror("Failed to write data to file");
+                //         return -1;
+                // }
+                // printf("Wrote %zu bytes\n", written);
+
         }
         
         
-
+        // close(fd); 
         free(newBuff);
-        free(json_string); 
+        // free(json_string); 
 
 
 
@@ -242,48 +291,198 @@ int readClientData(char *buffer, int socket){
 }
 
 
-int handle_client(int socket){
+
+
+int handle_client(int socket, cJSON *config){
         printf("Server: Got connection on socket %d\n", socket); 
         ssize_t bytes_received; 
-        int buffsize = BUF_SIZE;
-        unsigned char test_hash[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};         
-        int t = 0; 
+        int t = 0;
 
                         
         int numbytes; 
 
         /* Check buffer for error */
-        char *buffer = malloc(BUF_SIZE); 
+        char *buffer = malloc(sizeof(uint32_t)); 
+        // uint32_t *buffer = malloc(sizeof(uint32_t));
+        // char buffer[BUF_SIZE]; 
+
+        int fd; 
+
+        char *save_location; 
+        
+        cJSON *save_loc_obj = cJSON_GetObjectItemCaseSensitive(config, "backup_location");
+        if(cJSON_IsString(save_loc_obj) && (save_loc_obj != NULL)){
+                save_location = save_loc_obj->valuestring; 
+        }else{
+                perror("No save location set");
+                return 1;
+        }
+        
+
+        fd = open(save_location, O_WRONLY| O_CREAT |O_TRUNC, 0644);
+        if (fd < 0){
+                perror("Failed to access save location");
+                return 1; 
+        }
+        
+        cJSON *metaData = NULL; 
+        int rm = 0;
 
         while(1){
-                bzero(buffer, BUF_SIZE);
                 printf("Waiting for client...\n");
-                numbytes = recv(socket, buffer, BUF_SIZE, 0);
-                printf("New Message\n");
+                // Getting the size of the JSON data (how big is the metadata header)
+                // numbytes = recv(socket, buffer, sizeof(uint32_t), 0);
+                
+                if((rm = readMetadata(socket, &metaData)) != 0){ 
+                        if(rm == -1){
+                                perror("recv"); 
+                                close(socket); 
+                                break; 
+                        }else{
+                                // printf("Client disconnected gracefully (Socked FD: %d).\n", socket);
+                                break;
+                        }
+                }
+                // printf("Metadata size is: %d\n", numbytes);
+                // printf("New Message\n");
                 /* Maybe use recvmsg() with the struct msghdr  */
 
                 /* An application can use select(2), poll(2), or epoll(7) to determine when more data arrives on a socket. */
 
                 /* Client disconnects (not graceful)*/
-                if (numbytes == -1) {
-                        perror("recv");
-                        close(socket);
-                        break;
+                // if (numbytes == -1) {
+                //         perror("recv");
+                //         close(socket);
+                //         break;
 
-                } else if (numbytes == 0) { /* Graceful disconnect */
-                        printf("Client disconnected gracefully (Socked FD: %d).\n", socket);
-                        break;
-                } 
+                // } else if (numbytes == 0) { /* Graceful disconnect */
+                //         printf("Client disconnected gracefully (Socked FD: %d).\n", socket);
+                //         break;
+                // } 
                 
-                readClientData(buffer, socket); 
+                // readClientData(buffer, socket, config, fd); 
+                readClientData(buffer, socket, metaData, fd); 
                 
         }
+        close(fd); 
         free(buffer); 
 
         return 0;
 }
 
-int startServer(int sfd){
+
+/*
+ * Old send structure:
+ *   
+ * - Get metadata/json file size
+ * - read the metadata/json file
+ * - process the json file
+ * - Based on what the metadata file says read that much data 
+ * - (Repeat all steps)
+ * 
+ * New Optimized send structure:
+ *  - Get metadata/json file size
+ *  - read the metadata/json file
+ *  - process the json file
+ *  - based on what the metadata file says read that much data
+ *      - read 4 bytes this is the size of the next chunk of data 
+ *      - read that chunk of data 
+ *      - repeat until the read 4 bytes reads in all 0's meaning end of stream. 
+ *
+ *  - Once complete send closing metadata to confirm transfer success 
+ *      - Number of chunks/frames that were sent
+ *      - size of each frame 
+ *      - total data sent 
+ *
+ *  
+ * 
+ *  
+ * 
+ * 
+*/
+
+/*
+ * Reads metadata info from the data stream (works on start and end of a stream)
+ * 
+ * Data will be saved to the cJSON object argument 
+*/
+int readMetadata(int sock, cJSON **config){
+        
+        char buf[BUF_SIZE] = {0}; 
+        
+        ssize_t numbytes; 
+        int offset = 0; 
+        
+        uint32_t jsize, json_size;
+
+        numbytes = recv(sock, buf, sizeof(uint32_t), 0);
+        if (numbytes == -1) {
+                perror("Error receiving metadata size");
+                return -1; 
+
+        } else if (numbytes == 0) { /* Graceful disconnect */
+                printf("Client disconnected gracefully (Socked FD: %d).\n", sock);
+                return 1;
+        }
+
+        memcpy(&jsize, buf, sizeof(uint32_t)); 
+        
+
+        json_size = ntohl(jsize); 
+        printf("Json Size: %u\n",  json_size); 
+        
+        char *json_string = malloc(json_size); 
+        numbytes = recv(sock, json_string, json_size, 0);
+
+        
+        if (numbytes == -1) {
+                perror("Error receiving metadata (JSON string)");
+                return 1; 
+
+        } else if (numbytes == 0) { /* Graceful disconnect */
+                printf("Client disconnected gracefully (Socked FD: %d).\n", sock);
+                return -1;
+        }
+        
+        printf("JSON string: %s\n", json_string); 
+        
+        // 0x01 = 1
+        // 0x02 = 0x01
+        // 0x04 = 0x02
+        
+
+        /* 
+         * Read Json Data here
+         * Convert that json string back into a json object
+        */
+        // Error check this
+        cJSON *root = cJSON_Parse(json_string);
+        if(root == NULL){
+                const char *error_ptr = cJSON_GetErrorPtr(); 
+                if (error_ptr != NULL){
+                        fprintf(stderr, "Error before: %s\n", error_ptr); 
+                }
+                return 1; // 1 is error
+        }
+        
+        *config = root; 
+        
+        free(json_string); 
+        
+        return 0; 
+        
+}
+
+int handle_client2(int socket, int client){
+
+        return 0; 
+}
+
+int readClientData2(char *buffer, int socket, cJSON *config, int fd){
+        return 0; 
+}
+
+int startServer(int sfd, cJSON *config){
         printf("SFD: %d\n", sfd); 
         int new_fd; 
         struct sockaddr_storage peer_addr; 
@@ -307,7 +506,7 @@ int startServer(int sfd){
                 // handle_client(&new_fd);
                 printf("Handle Client Here\n"); 
                 
-                handle_client(new_fd);
+                handle_client(new_fd, config);
 
                 // gai = getnameinfo((struct sockaddr *) &peer_addr, peer_addrlen, host, NI_MAXHOST, service,
                 //                 NI_MAXSERV, NI_NUMERICSERV);

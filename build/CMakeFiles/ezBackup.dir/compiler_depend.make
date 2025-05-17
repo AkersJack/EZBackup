@@ -71,7 +71,6 @@ CMakeFiles/ezBackup.dir/database.c.o: /home/jack/Documents/ezb/EZBackup-2/databa
   /usr/lib/gcc/x86_64-linux-gnu/14/include/stddef.h
 
 CMakeFiles/ezBackup.dir/main.c.o: /home/jack/Documents/ezb/EZBackup-2/main.c \
-  /home/jack/Documents/ezb/EZBackup-2/client.h \
   /home/jack/Documents/ezb/EZBackup-2/database.h \
   /home/jack/Documents/ezb/EZBackup-2/tools.h \
   /usr/include/alloca.h \
@@ -325,8 +324,6 @@ CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezb/EZBackup-2/tools.c \
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h:
 
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
-
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
@@ -501,14 +498,6 @@ CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezb/EZBackup-2/tools.c \
 
 /usr/lib/gcc/x86_64-linux-gnu/14/include/stddef.h:
 
-/home/jack/Documents/ezb/EZBackup-2/client.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
-
-/usr/include/x86_64-linux-gnu/sys/select.h:
-
-/usr/include/unistd.h:
-
 /usr/include/archive.h:
 
 /usr/include/archive_entry.h:
@@ -575,6 +564,12 @@ CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezb/EZBackup-2/tools.c \
 
 /usr/include/sched.h:
 
+/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
+
+/usr/include/x86_64-linux-gnu/sys/select.h:
+
+/usr/include/unistd.h:
+
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
@@ -596,3 +591,5 @@ CMakeFiles/ezBackup.dir/tools.c.o: /home/jack/Documents/ezb/EZBackup-2/tools.c \
 /usr/include/x86_64-linux-gnu/bits/in.h:
 
 /usr/include/x86_64-linux-gnu/bits/ioctls.h:
+
+/usr/include/x86_64-linux-gnu/bits/math-vector.h:

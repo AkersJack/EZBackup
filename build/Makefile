@@ -173,6 +173,19 @@ ezBackup/fast:
 .PHONY : ezBackup/fast
 
 #=============================================================================
+# Target rules for targets named client
+
+# Build rule for target.
+client: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 client
+.PHONY : client
+
+# fast build rule for target.
+client/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/build
+.PHONY : client/fast
+
+#=============================================================================
 # Target rules for targets named server
 
 # Build rule for target.
@@ -210,6 +223,19 @@ sftp: cmake_check_build_system
 sftp/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/build
 .PHONY : sftp/fast
+
+#=============================================================================
+# Target rules for targets named rsync
+
+# Build rule for target.
+rsync: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rsync
+.PHONY : rsync
+
+# fast build rule for target.
+rsync/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/build
+.PHONY : rsync/fast
 
 #=============================================================================
 # Target rules for targets named database
@@ -601,13 +627,42 @@ ContinuousSubmit/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ContinuousSubmit.dir/build.make CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
+client.o: client.c.o
+.PHONY : client.o
+
+# target to build an object file
+client.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/client.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.o
+.PHONY : client.c.o
+
+client.i: client.c.i
+.PHONY : client.i
+
+# target to preprocess a source file
+client.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/client.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.i
+.PHONY : client.c.i
+
+client.s: client.c.s
+.PHONY : client.s
+
+# target to generate assembly for a file
+client.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/client.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/client.c.s
+.PHONY : client.c.s
+
 config.o: config.c.o
 .PHONY : config.o
 
 # target to build an object file
 config.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.o
 .PHONY : config.c.o
@@ -617,8 +672,10 @@ config.i: config.c.i
 
 # target to preprocess a source file
 config.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.i
 .PHONY : config.c.i
@@ -628,8 +685,10 @@ config.s: config.c.s
 
 # target to generate assembly for a file
 config.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sftp.dir/build.make CMakeFiles/sftp.dir/config.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/config.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/config.dir/build.make CMakeFiles/config.dir/config.c.s
 .PHONY : config.c.s
@@ -639,7 +698,9 @@ database.o: database.c.o
 
 # target to build an object file
 database.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/database.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/database.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.o
 .PHONY : database.c.o
 
@@ -648,7 +709,9 @@ database.i: database.c.i
 
 # target to preprocess a source file
 database.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/database.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/database.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.i
 .PHONY : database.c.i
 
@@ -657,7 +720,9 @@ database.s: database.c.s
 
 # target to generate assembly for a file
 database.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/database.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ezBackup.dir/build.make CMakeFiles/ezBackup.dir/database.c.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/client.dir/build.make CMakeFiles/client.dir/database.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/database.c.s
 .PHONY : database.c.s
 
@@ -709,11 +774,36 @@ menu.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/menu.dir/build.make CMakeFiles/menu.dir/menu.c.s
 .PHONY : menu.c.s
 
+rsync.o: rsync.c.o
+.PHONY : rsync.o
+
+# target to build an object file
+rsync.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/rsync.c.o
+.PHONY : rsync.c.o
+
+rsync.i: rsync.c.i
+.PHONY : rsync.i
+
+# target to preprocess a source file
+rsync.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/rsync.c.i
+.PHONY : rsync.c.i
+
+rsync.s: rsync.c.s
+.PHONY : rsync.s
+
+# target to generate assembly for a file
+rsync.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/rsync.c.s
+.PHONY : rsync.c.s
+
 server.o: server.c.o
 .PHONY : server.o
 
 # target to build an object file
 server.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/server.c.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.o
 .PHONY : server.c.o
 
@@ -722,6 +812,7 @@ server.i: server.c.i
 
 # target to preprocess a source file
 server.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/server.c.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.i
 .PHONY : server.c.i
 
@@ -730,6 +821,7 @@ server.s: server.c.s
 
 # target to generate assembly for a file
 server.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testing.dir/build.make CMakeFiles/testing.dir/server.c.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server.dir/build.make CMakeFiles/server.dir/server.c.s
 .PHONY : server.c.s
 
@@ -804,6 +896,30 @@ test_database.s: test_database.c.s
 test_database.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/database.dir/build.make CMakeFiles/database.dir/test_database.c.s
 .PHONY : test_database.c.s
+
+test_rsync.o: test_rsync.c.o
+.PHONY : test_rsync.o
+
+# target to build an object file
+test_rsync.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/test_rsync.c.o
+.PHONY : test_rsync.c.o
+
+test_rsync.i: test_rsync.c.i
+.PHONY : test_rsync.i
+
+# target to preprocess a source file
+test_rsync.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/test_rsync.c.i
+.PHONY : test_rsync.c.i
+
+test_rsync.s: test_rsync.c.s
+.PHONY : test_rsync.s
+
+# target to generate assembly for a file
+test_rsync.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rsync.dir/build.make CMakeFiles/rsync.dir/test_rsync.c.s
+.PHONY : test_rsync.c.s
 
 test_server.o: test_server.c.o
 .PHONY : test_server.o
@@ -919,13 +1035,18 @@ help:
 	@echo "... NightlySubmit"
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
+	@echo "... client"
 	@echo "... config"
 	@echo "... database"
 	@echo "... ezBackup"
 	@echo "... menu"
+	@echo "... rsync"
 	@echo "... server"
 	@echo "... sftp"
 	@echo "... testing"
+	@echo "... client.o"
+	@echo "... client.i"
+	@echo "... client.s"
 	@echo "... config.o"
 	@echo "... config.i"
 	@echo "... config.s"
@@ -938,6 +1059,9 @@ help:
 	@echo "... menu.o"
 	@echo "... menu.i"
 	@echo "... menu.s"
+	@echo "... rsync.o"
+	@echo "... rsync.i"
+	@echo "... rsync.s"
 	@echo "... server.o"
 	@echo "... server.i"
 	@echo "... server.s"
@@ -950,6 +1074,9 @@ help:
 	@echo "... test_database.o"
 	@echo "... test_database.i"
 	@echo "... test_database.s"
+	@echo "... test_rsync.o"
+	@echo "... test_rsync.i"
+	@echo "... test_rsync.s"
 	@echo "... test_server.o"
 	@echo "... test_server.i"
 	@echo "... test_server.s"

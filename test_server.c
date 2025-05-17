@@ -3,6 +3,10 @@
 #include <netdb.h>
 #include <sys/socket.h> 
 
+
+/*
+ * Pass config settings or cjson pointer to functions so config settings can be read 
+*/
 int main(int argc, char *argv[]){
 
         cJSON *config = cJSON_CreateObject(); 
@@ -16,7 +20,7 @@ int main(int argc, char *argv[]){
 
         initServer(port, &sfd);
         printf("Socket: %d\n", sfd); 
-        startServer(sfd); 
+        startServer(sfd, config); 
 
 
         // close(new_fd); 

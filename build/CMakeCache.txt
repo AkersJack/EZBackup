@@ -298,6 +298,9 @@ PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
 SITE:STRING=TheBeast
 
 //Dependencies for the target
+client_LIB_DEPENDS:STATIC=general;archive;general;sqlite3;general;cjson;general;crypto;
+
+//Dependencies for the target
 config_LIB_DEPENDS:STATIC=general;cjson;
 
 //Value Computed by CMake

@@ -18,13 +18,20 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(LibArchive REQUIRED)
 
 # Test File (general testing going to switch to try to test everything here)
-add_executable(testing test.c)
+add_executable(testing test.c server.c config.c client.c database.c)
+target_link_libraries(testing PRIVATE archive PRIVATE sqlite3 PRIVATE cjson PRIVATE crypto)
+
 
 # Main (client)
 add_executable(ezBackup main.c tools.c database.c)
 
+
 # Link executable with libarchive
 target_link_libraries(ezBackup PRIVATE archive PRIVATE sqlite3 PRIVATE cjson PRIVATE crypto)
+
+# Client (new client)
+add_library(client STATIC client.c database.c)
+target_link_libraries(client PRIVATE archive PRIVATE sqlite3 PRIVATE cjson PRIVATE crypto)
 
 # Server 
 add_executable(server test_server.c config.c server.c)
@@ -40,6 +47,11 @@ pkg_check_modules(LIBSSH2 REQUIRED libssh2)
 add_executable(sftp test_sftp.c sftp.c config.c)
 target_include_directories(sftp PRIVATE ${LIBSSH2_INCLUDE_DIRS})
 target_link_libraries(sftp PRIVATE archive PRIVATE cjson PRIVATE crypto PRIVATE ${LIBSSH2_LIBRARIES})
+
+# Rsync
+add_executable(rsync test_rsync.c rsync.c config.c)
+target_include_directories(rsync PRIVATE)
+target_link_libraries(rsync PRIVATE archive PRIVATE cjson PRIVATE crypto)
 
 # Database 
 add_executable(database test_database.c database.c tools.c config.c)

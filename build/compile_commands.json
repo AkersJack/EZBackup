@@ -7,6 +7,30 @@
 },
 {
   "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/testing.dir/server.c.o -c /home/jack/Documents/ezb/EZBackup-2/server.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/server.c",
+  "output": "CMakeFiles/testing.dir/server.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/testing.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
+  "output": "CMakeFiles/testing.dir/config.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/testing.dir/client.c.o -c /home/jack/Documents/ezb/EZBackup-2/client.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/client.c",
+  "output": "CMakeFiles/testing.dir/client.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/testing.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/database.c",
+  "output": "CMakeFiles/testing.dir/database.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
   "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/ezBackup.dir/main.c.o -c /home/jack/Documents/ezb/EZBackup-2/main.c",
   "file": "/home/jack/Documents/ezb/EZBackup-2/main.c",
   "output": "CMakeFiles/ezBackup.dir/main.c.o"
@@ -22,6 +46,18 @@
   "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/ezBackup.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c",
   "file": "/home/jack/Documents/ezb/EZBackup-2/database.c",
   "output": "CMakeFiles/ezBackup.dir/database.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/client.dir/client.c.o -c /home/jack/Documents/ezb/EZBackup-2/client.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/client.c",
+  "output": "CMakeFiles/client.dir/client.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/client.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/database.c",
+  "output": "CMakeFiles/client.dir/database.c.o"
 },
 {
   "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
@@ -64,6 +100,24 @@
   "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/sftp.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
   "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
   "output": "CMakeFiles/sftp.dir/config.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/rsync.dir/test_rsync.c.o -c /home/jack/Documents/ezb/EZBackup-2/test_rsync.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/test_rsync.c",
+  "output": "CMakeFiles/rsync.dir/test_rsync.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/rsync.dir/rsync.c.o -c /home/jack/Documents/ezb/EZBackup-2/rsync.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/rsync.c",
+  "output": "CMakeFiles/rsync.dir/rsync.c.o"
+},
+{
+  "directory": "/home/jack/Documents/ezb/EZBackup-2/build",
+  "command": "/usr/bin/cc   -g -O0 -g -std=gnu17 -o CMakeFiles/rsync.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c",
+  "file": "/home/jack/Documents/ezb/EZBackup-2/config.c",
+  "output": "CMakeFiles/rsync.dir/config.c.o"
 },
 {
   "directory": "/home/jack/Documents/ezb/EZBackup-2/build",

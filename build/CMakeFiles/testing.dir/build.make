@@ -83,17 +83,81 @@ CMakeFiles/testing.dir/test.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/testing.dir/test.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/test.c -o CMakeFiles/testing.dir/test.c.s
 
+CMakeFiles/testing.dir/server.c.o: CMakeFiles/testing.dir/flags.make
+CMakeFiles/testing.dir/server.c.o: /home/jack/Documents/ezb/EZBackup-2/server.c
+CMakeFiles/testing.dir/server.c.o: CMakeFiles/testing.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/testing.dir/server.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/testing.dir/server.c.o -MF CMakeFiles/testing.dir/server.c.o.d -o CMakeFiles/testing.dir/server.c.o -c /home/jack/Documents/ezb/EZBackup-2/server.c
+
+CMakeFiles/testing.dir/server.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/testing.dir/server.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/server.c > CMakeFiles/testing.dir/server.c.i
+
+CMakeFiles/testing.dir/server.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/testing.dir/server.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/server.c -o CMakeFiles/testing.dir/server.c.s
+
+CMakeFiles/testing.dir/config.c.o: CMakeFiles/testing.dir/flags.make
+CMakeFiles/testing.dir/config.c.o: /home/jack/Documents/ezb/EZBackup-2/config.c
+CMakeFiles/testing.dir/config.c.o: CMakeFiles/testing.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/testing.dir/config.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/testing.dir/config.c.o -MF CMakeFiles/testing.dir/config.c.o.d -o CMakeFiles/testing.dir/config.c.o -c /home/jack/Documents/ezb/EZBackup-2/config.c
+
+CMakeFiles/testing.dir/config.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/testing.dir/config.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/config.c > CMakeFiles/testing.dir/config.c.i
+
+CMakeFiles/testing.dir/config.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/testing.dir/config.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/config.c -o CMakeFiles/testing.dir/config.c.s
+
+CMakeFiles/testing.dir/client.c.o: CMakeFiles/testing.dir/flags.make
+CMakeFiles/testing.dir/client.c.o: /home/jack/Documents/ezb/EZBackup-2/client.c
+CMakeFiles/testing.dir/client.c.o: CMakeFiles/testing.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/testing.dir/client.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/testing.dir/client.c.o -MF CMakeFiles/testing.dir/client.c.o.d -o CMakeFiles/testing.dir/client.c.o -c /home/jack/Documents/ezb/EZBackup-2/client.c
+
+CMakeFiles/testing.dir/client.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/testing.dir/client.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/client.c > CMakeFiles/testing.dir/client.c.i
+
+CMakeFiles/testing.dir/client.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/testing.dir/client.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/client.c -o CMakeFiles/testing.dir/client.c.s
+
+CMakeFiles/testing.dir/database.c.o: CMakeFiles/testing.dir/flags.make
+CMakeFiles/testing.dir/database.c.o: /home/jack/Documents/ezb/EZBackup-2/database.c
+CMakeFiles/testing.dir/database.c.o: CMakeFiles/testing.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/testing.dir/database.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/testing.dir/database.c.o -MF CMakeFiles/testing.dir/database.c.o.d -o CMakeFiles/testing.dir/database.c.o -c /home/jack/Documents/ezb/EZBackup-2/database.c
+
+CMakeFiles/testing.dir/database.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/testing.dir/database.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/jack/Documents/ezb/EZBackup-2/database.c > CMakeFiles/testing.dir/database.c.i
+
+CMakeFiles/testing.dir/database.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/testing.dir/database.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/jack/Documents/ezb/EZBackup-2/database.c -o CMakeFiles/testing.dir/database.c.s
+
 # Object files for target testing
 testing_OBJECTS = \
-"CMakeFiles/testing.dir/test.c.o"
+"CMakeFiles/testing.dir/test.c.o" \
+"CMakeFiles/testing.dir/server.c.o" \
+"CMakeFiles/testing.dir/config.c.o" \
+"CMakeFiles/testing.dir/client.c.o" \
+"CMakeFiles/testing.dir/database.c.o"
 
 # External object files for target testing
 testing_EXTERNAL_OBJECTS =
 
 testing: CMakeFiles/testing.dir/test.c.o
+testing: CMakeFiles/testing.dir/server.c.o
+testing: CMakeFiles/testing.dir/config.c.o
+testing: CMakeFiles/testing.dir/client.c.o
+testing: CMakeFiles/testing.dir/database.c.o
 testing: CMakeFiles/testing.dir/build.make
 testing: CMakeFiles/testing.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable testing"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable testing"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/testing.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

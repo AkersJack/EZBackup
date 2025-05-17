@@ -1,8 +1,10 @@
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/testing.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/ezBackup.dir
+/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/client.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/server.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/menu.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/sftp.dir
+/home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/rsync.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/database.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/config.dir
 /home/jack/Documents/ezb/EZBackup-2/build/CMakeFiles/Experimental.dir

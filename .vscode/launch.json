@@ -12,7 +12,7 @@
           // "program": "${workspaceFolder}/${fileBasenameNoExtension}",
           // "program": "${workspaceFolder}/build/database",
           // "program": "${workspaceFolder}/database",
-        //   "program": "${workspaceFolder}/build/ezBackup",
+          // "program": "${workspaceFolder}/build/ezBackup",
           "program": "${workspaceFolder}/build/server",
           // "program": "${workspaceFolder}/build/database",
           // "args": ["localhost", "-p 8080"],

@@ -21,6 +21,13 @@ typedef enum {
 
 */ 
 
+// Contains all the possible operations (used in client.c and server.c)
+typedef enum{
+    TEST_OPERATION, 
+    FILE_TRANSFER, 
+    MESSAGE, 
+}Operation; 
+
 FileType checkType(mode_t file_type);
 
 char *getFname(char *p);

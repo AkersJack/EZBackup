@@ -18,7 +18,7 @@
 #endif
 
 
-#include "client.h"
+// #include "client.h"
 #include <fcntl.h>
 #include <stdlib.h> 
 #include <stdio.h>
@@ -51,17 +51,7 @@
 Compile with cjson: 
 gcc -g -D TEST_MAIN client.c -o client -l cjson 
 
-OR if we define main:
-gcc -g client.c -o client -l cjson 
-
-
-Compile with hash gen: 
-gcc -g client.c -o client -l cjson -l ssl -l crypto
-
-cmake --build .
-
-cmake --build ./build && ./database
-
+OR if we define main:int
 */
 
 
@@ -90,11 +80,11 @@ struct FileBuffer{
 };
 
 // Contains all the possible operations
-typedef enum{
-    TEST_OPERATION, 
-    FILE_TRANSFER, 
-    MESSAGE, 
-}Operation; 
+// typedef enum{
+//     TEST_OPERATION, 
+//     FILE_TRANSFER, 
+//     MESSAGE, 
+// }Operation; 
 
 typedef struct{
     uint32_t upper;  // Upper half of a uint64_t
@@ -127,6 +117,19 @@ sizeObject sizeFormat(long double num){
         }
         
         return sObj; 
+}
+
+// Free user input here
+int freeUserInput(struct fileContainer *fc){
+        for(int i = 0; i < fc->num_files; i++){
+                free(fc->files[i]);
+                fc->files[i] = NULL;
+        }
+        free(fc->files);
+        fc->files = NULL;
+        
+        return 0;
+
 }
 
 struct fileContainer get_user_input_files(){
@@ -237,18 +240,6 @@ struct fileContainer get_user_input_files(){
 
 
 
-// Free user input here
-int freeUserInput(struct fileContainer *fc){
-        for(int i = 0; i < fc->num_files; i++){
-                free(fc->files[i]);
-                fc->files[i] = NULL;
-        }
-        free(fc->files);
-        fc->files = NULL;
-        
-        return 0;
-
-}
 
 // Splits a uint64_t into two 32 bit values stored in uint64_s
 uint64_s split_u64(uint64_t val){
@@ -373,10 +364,6 @@ int sendJSON(cJSON *obj, int socket){
          * If the other half is wrong we know there is an error. 
         */
 
-        
-
-
-
         uint32_t jsize_net = htonl(jsize); 
         
         size_t size = sizeof(uint32_t) + jsize; 
@@ -393,13 +380,26 @@ int sendJSON(cJSON *obj, int socket){
         
 
         // Send the big header
-        if ((header_bytes_sent = send(socket, header_buff, size, 0)) == -1) {
+        if ((header_bytes_sent = send(socket, &jsize_net, sizeof(uint32_t), 0)) == -1) {
+        // if ((header_bytes_sent = send(socket, header_buff, size, 0)) == -1) {
                 perror("send");
                 close(socket);  // Might not want to close (possibly try again)
                 free(header_buff);
                 exit(1);
         }
-        // printf("Json string: %s\n", json_string); 
+        printf("Header bytes_sent: %ld\n", header_bytes_sent);
+
+        if ((header_bytes_sent = send(socket, json_string, jsize, 0)) == -1) {
+        // if ((header_bytes_sent = send(socket, header_buff, size, 0)) == -1) {
+                perror("send");
+                close(socket);  // Might not want to close (possibly try again)
+                free(header_buff);
+                exit(1);
+        }
+
+        printf("JSON bytes_sent: %ld\n", header_bytes_sent);
+
+        printf("JSON string: %s\n", json_string); 
         
 
         // numbytes = recv(socket, client_digest, MD5_DIGEST_LENGTH, 0);
@@ -424,22 +424,18 @@ int sendJSON(cJSON *obj, int socket){
         free(digest);
         free(header_buff);
         free(json_string);
-        printf("Header bytes_sent: %ld\n", header_bytes_sent);
-        printf("Json Size: %ld\n", jsize);
+        printf("JSON Size: %ld\n", jsize);
         return 0; 
 
 }
 
 // This one is for streaming over a socket
 ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffer, size_t length){
-        struct custom_write_data *mydata = client_data;
+        struct custom_write_data *mydata = client_data; 
         cJSON *root = cJSON_CreateObject(); 
         int json_status; 
-        printf("Using custom_write_cb2\n");
-        
+
         // size_t written = fwrite(buffer, 1, length, mydata->output_file);
-        
-        //sendBaseHeader(mydata->sock, length, 0);
         
         cJSON_AddStringToObject(root, "Test", "TestString"); 
         /* The conversion from size_t to double "could" cause issues*/
@@ -447,27 +443,29 @@ ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffe
         /* Again this conversion could cause issues (possibly convert to string then back)*/
         cJSON_AddNumberToObject(root, "total_written", *(mydata->total_written)); 
 
-        json_status = sendJSON(root, mydata->sock);
 
+        json_status = sendJSON(root, mydata->sock);
+        
         /* 
          * This line should be changed to handle an error besides just exiting 
         */
         if(json_status != 0){
+                perror("Error sending metadata file");
                 exit(1); 
         }
 
         // Create hash of buffer data and send it? Then check data received against other hash? 
         
-
         // TODO: Error checking
         ssize_t written = send(mydata->sock, buffer, length, 0);
         if(written < 0){
             perror("Socket callback send error");
         }
-        // if (written != length){
-        //         archive_set_error(a, errno, "Write error");
-        //         return -1;
-        // }
+        if (written != length){
+                archive_set_error(a, errno, "Write error");
+                return -1;
+        }
+        // ssize_t written = length; 
         *(mydata->total_written) += written;
         
         long double percent_comp = (((long double)*(mydata->total_written) / (long double)*(mydata->total_read))) * 100;
@@ -476,9 +474,6 @@ ssize_t custom_write_cb2(struct archive *a, void *client_data, const void *buffe
         sizeObject sizeObj_2;
         sizeObj_1 = sizeFormat(((long double) *(mydata->total_written))); 
         sizeObj_2 = sizeFormat(((long double) *(mydata->total_read))); 
-
-
-        // printf("Total Written: %lu\t Total Read: %lu\t Compressed Size: %.2Lf%% of original\n", *(mydata->total_written), *(mydata->total_read), percent_comp);
         printf("Total Written: %.2lf %s\t Total Read: %.2lf %s\t Compressed Size: %.2Lf%% of original\n", sizeObj_1.size, sizeObj_1.units, sizeObj_2.size, sizeObj_2.units, percent_comp);
 
         
@@ -541,45 +536,33 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
         struct archive *dir_a; 
         struct archive_entry *entry; 
         char buff[131072]; 
-        // char buff[8192]; 
         int len; 
         int fd; 
         struct stat st; 
         int r; 
         uint64_t total_written = 0; 
-        uint64_t total_read = 0;
-
-        // cJSON *root = cJSON_CreateObject(); 
+        uint64_t total_read = 0; 
         
-        msg->size = (sizeof(struct Message)); 
-        msg->total_transfered = 0; 
-        msg->jsize = 0;
-        msg->dsize = 10240;
 
-        // char *header_buff = malloc(msg->size);
-
-        char output_filename[] = "./new_test.tar.zst";
+        char output_filename[] = "./new_test.tar.zst";  
         char output_tablename[] = "./new_test.db";
         char database_name[] = "database.db"; 
         
-        sqlite3 *db; 
+        
 
-        init_Database(&db, database_name);
+        sqlite3 *db;
+
+        init_Database(&db, database_name); 
         
         // Returns 1 if the table already exists
         int err = createTableData(db, output_tablename); 
         if(err == 1){
                 printf("Need to rename the table\n");
+                sqlite3_close(db);
+        }else{
+                sqlite3_close(db);
         }
-        
-        
 
-
-
-        // char output_filename[] = "/mnt/E66294026293D5A1/test_Jack_Windows_Backup.tar.zst"; 
-        // char output_filename[] = "/mnt/E66294026293D5A1/testBackup.tar.zst"; 
-        // char output_filename[] = "../testOutput_new.tar.zst"; 
-        
         // Create a new archive object for reading directories 
         if((dir_a = archive_read_disk_new()) == NULL){
                 fprintf(stderr, "Failed to initialize archive structure: %s\n", archive_error_string(dir_a));
@@ -608,8 +591,8 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                 fprintf(stderr, "Error setting zstd compression: %s\n", archive_error_string(a));
                 return 1;
         }
-
-        if(archive_write_set_filter_option(a, "zstd", "compression-level", "20") != ARCHIVE_OK){
+        // was 20
+        if(archive_write_set_filter_option(a, "zstd", "compression-level", "15") != ARCHIVE_OK){
                 fprintf(stderr, "Error setting zstd compression level: %s\n", archive_error_string(a));
                 return 1;
         }
@@ -621,28 +604,29 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
 
         archive_write_set_bytes_per_block(a, 10240);
         archive_write_set_bytes_in_last_block(a, 1);
+
         // Setup custom write callback
         struct custom_write_data mydata;
-        // mydata.cj_obj = root; 
+
         mydata.total_read = &total_read;
         mydata.total_written = &total_written; 
         // mydata.output_file = fopen(output_filename, "wb");
         mydata.sock = socket;
-
-        // if (mydata.output_file == NULL) {
-        //         fprintf(stderr, "Failed to open output file %s\n", output_filename);
-        //         archive_write_free(a);
-        //         return 1;
-        // }
+        
         mydata.output_filename = output_filename;
-
+        
         // Set the callback
-        // archive_write_open(a, &mydata, NULL, custom_write_cb, NULL);
         archive_write_open(a, &mydata, NULL, custom_write_cb2, NULL);
-        char *base_name; 
+        
+        
+        
+        printf("Stream archive here\n"); 
+
+        char *base_name;
+        // Apparently archive_read_next_header() manages the entry internally so I don't need to manually create a new one 
+        // entry = archive_entry_new();
         /* Archive and compress each file using libachive */
         for (int i = 0; i < fc->num_files; i++) {
-                entry = archive_entry_new();
                 r = archive_read_disk_open(dir_a, fc->files[i]);
                 if (r != ARCHIVE_OK) {
                         fprintf(stderr, "Failed to open directory: %s\n", archive_error_string(dir_a));
@@ -650,13 +634,12 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                         return -1;
                 }
 
-                while(archive_read_next_header(dir_a, &entry) == ARCHIVE_OK){
-                        const char *current_path = archive_entry_pathname(entry);
-                        const struct stat *sta = archive_entry_stat(entry);
-                        
-                        char real_path[PATH_MAX];
-                        char *res = realpath(current_path, real_path);
-                        if(!res){
+                while(archive_read_next_header(dir_a, &entry) == ARCHIVE_OK){ 
+                        const char *current_path = archive_entry_pathname(entry); 
+                        const struct stat *sta = archive_entry_stat(entry); 
+                        char real_path[PATH_MAX]; 
+                        char *res = realpath(current_path, real_path); 
+                        if(!res){ 
                                 perror("realpath");
                                 exit(EXIT_FAILURE);
                         }
@@ -691,8 +674,6 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                                 fd = open(current_path, O_RDONLY);
                                 if (fd < 0) {
                                         fprintf(stderr, "Failed to open input file %s\n", fc->files[0]);
-                                        archive_entry_free(entry);
-                                        archive_write_close(a);
                                         archive_write_free(a);
                                         // fclose(mydata.output_file);
                                         return 1;
@@ -704,8 +685,6 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                                         if (r < 0) {
                                                 fprintf(stderr, "Error writing data %s\n", archive_error_string(a));
                                                 close(fd);
-                                                archive_entry_free(entry);
-                                                archive_write_close(a);
                                                 archive_write_free(a);
                                                 // fclose(mydata.output_file);
                                                 return 1;
@@ -720,30 +699,28 @@ int stream_archive(struct fileContainer *fc, int socket, struct Message *msg){
                         if (archive_read_disk_descend(dir_a) != ARCHIVE_OK) {
                                 fprintf(stderr, "Error descending into disk: %s\n", archive_error_string(dir_a));
                                 close(fd);
-                                archive_entry_free(entry);
-                                archive_write_close(a);
                                 archive_write_free(a);
                                 // fclose(mydata.output_file);
-                                archive_read_close(dir_a);
                                 archive_read_free(dir_a);
                                 return 1;
                         }
                         // }
                 }
 
+                // Should only call this if you create the entry with archive_entry_new()
+                // Also archive_read_next_header() automatically does this 
+                // archive_entry_clear(entry);
+
                 archive_read_close(dir_a);
         }
-        archive_read_free(dir_a);
         
 
         // Cleanup
-        archive_write_close(a);
+        archive_read_free(dir_a); 
         archive_write_free(a);
-        // fclose(mydata.output_file);
+
 
         printf("Successfully created compressed archive: %s\n", output_filename);
-        //sendBaseHeader(socket, 0, 1234567890); // Let the server know the end of the file has been sent
-
         return 0;
 }
 
@@ -762,6 +739,7 @@ void* handle_file_transfer(void *sock_ptr, void* message_ptr){
     message->size = 10240;
     
     stream_archive(&fc, sock, message);
+    freeUserInput(&fc); 
 
 
     
@@ -843,7 +821,7 @@ int serverLoop(int sock){
         }else{
             // Do operation
             unsigned char *fhash = (unsigned char *)selectedOP(&sock, cmess);
-            
+
             // ssize_t numbytes = recv(sock, buffer, BUF_SIZE, 0);
             // if(numbytes == -1){
             //     perror("recv");
@@ -856,6 +834,9 @@ int serverLoop(int sock){
             
         }
     }
+    
+    free(cmess); 
+    cmess = NULL; 
 
     bzero(buffer, BUF_SIZE);
     free(buffer); 
@@ -915,7 +896,8 @@ void* connect_to_server(const char *address, const char* port){
     for (rp = result; rp != NULL; rp = rp->ai_next){
         *sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol); 
         if(*sfd == -1)
-            continue; // 
+            continue; 
+                      
         if(connect(*sfd, rp->ai_addr, rp->ai_addrlen) != -1){
             printf("socket connected\n");
             break; // Success
@@ -927,8 +909,10 @@ void* connect_to_server(const char *address, const char* port){
 
     if (rp == NULL){
         fprintf(stderr, "Could not connect\n"); 
+        free(sfd); 
         exit(EXIT_FAILURE);
     }
+
     
     return sfd; 
 }
@@ -951,12 +935,15 @@ int main(int argc, char *argv[]){
 
     if(sock_ptr == NULL){
         fprintf(stderr, "Could not connect\n"); 
+        free(sock_ptr); 
         exit(EXIT_FAILURE);
     }
 
     int sock = *sock_ptr;
 
     serverLoop(sock); 
+    free(sock_ptr);
+    sock_ptr = NULL; 
 
     return 0;
 }

@@ -1,1 +1,1 @@
-/usr/bin/cc -g -O0 -g CMakeFiles/testing.dir/test.c.o -o testing
+/usr/bin/cc -g -O0 -g CMakeFiles/testing.dir/test.c.o CMakeFiles/testing.dir/server.c.o CMakeFiles/testing.dir/config.c.o CMakeFiles/testing.dir/client.c.o CMakeFiles/testing.dir/database.c.o -o testing  -larchive -lsqlite3 -lcjson -lcrypto

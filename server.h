@@ -7,9 +7,10 @@
 #include <arpa/inet.h> // uint32_t
 #include <netdb.h> // for addrinfo hints
 #include <sys/types.h>
-#include <unistd.h> // For close()
-#include <cjson/cJSON.h>
+#include <unistd.h> // For close() and write() 
+#include <cjson/cJSON.h> // For handling json
 #include <stdio.h>
+#include <fcntl.h> // For open()
 
 
 
@@ -18,14 +19,8 @@
 
 
 // Used as a generic to return to the proper operation handler 
-typedef void* (*OperationFunc)(void* , void*); 
+// typedef void* (*OperationFunc)(void* , void*); 
 
-// Contains all the possible operations (already defined in client.c)
-typedef enum{
-    TEST_OPERATION, 
-    FILE_TRANSFER, 
-    MESSAGE, 
-}Operation; 
 
 
 /*
@@ -35,6 +30,8 @@ typedef enum{
  *  to read. 
 */
 
+
+int readMetadata(int sock, cJSON **config); 
 
 // Generate MD5 File hash (need to free the returned value)
 unsigned char* genHash(const char *fpath);
@@ -59,12 +56,17 @@ void* handle_file_transfer(void *sock_ptr, void *message_ptr);
 /*
         Returns a function to handle the chosen operation
 */ 
-OperationFunc getOperation(uint64_t op);
+// OperationFunc getOperation(uint64_t op);
 
 
 /*
  * Init Sever 
     (returns a socket that is ready to receive connections)
+    Args: 
+        - char *port - desired port to start the server on 
+        - int *sock -   The socket that gets opened. This takes a temp value (0)
+                        that is updated once the server starts with the correct
+                        socket number. 
 */
 
 int initServer(char *port, int *sock); 
@@ -74,20 +76,37 @@ int initServer(char *port, int *sock);
    (Runs an infinite loop that is ready to receive connections)
 */
 
-int startServer(); 
+int startServer(int socket, cJSON *config); 
 
 
 
 /* 
     Handle the client connections
 */
-int handle_client(int sock); 
+int handle_client(int sock, cJSON *config); 
 
 /* 
  * Read the client message and store everything inside of the message object
+ *
 */
-int readClientData(char *buffer, int socket);
-    
+int readClientData(char *buffer, int socket, cJSON *metadata, int fd);
+
+
+
+
+
+
+/* 
+ * Write Data to disk
+ * returns 0 on error
+ * Args: 
+ *      char *buff - A buffer containing information to write to file
+ *      size_t buff_len - size/length of the buffer/data 
+ *      int fd - A file descriptor 
+ *
+ *
+*/
+size_t writeData(char *buff, size_t buff_len, int fd); 
 
 
 #endif

@@ -3,6 +3,33 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+
+int init_custom_config(const char* path){
+        FILE *file; 
+        if(access(path, F_OK) != 0){
+                if(errno == ENOENT){
+                        printf("File %s does not exist.\n", path); 
+                        file = fopen(path, "w+");
+                        if(file == NULL){
+                                // fprintf(stderr, "Error creating config file: %s\n", strerror(errno));  
+                                perror("Error creating config file");
+                                return 1; 
+                        }
+
+                }else{
+                        // fprintf(stderr, "Error: %s\n", strerror(errno)); 
+                        perror("Error unable to access config file");
+                        return 1; 
+                }
+        }
+
+
+
+
+        return 0; 
+}
+
+
 int initConfig(){
         FILE *file; 
         const char *path = "./config.json";
@@ -83,6 +110,64 @@ int buildConfig(){
 
 
 
+int readCustomConfig(const char *path, cJSON **obj){
+        FILE *file = fopen(path, "r"); 
+        struct stat st; 
+        long fsize; 
+
+        if(!file){
+                fprintf(stderr, "Error opening file %s\n", path);
+                return 1; 
+        }
+
+
+        if(stat(path, &st) != 0){
+                perror("Error getting file size");
+                fclose(file); 
+                return 1;
+        }
+        
+        fsize = st.st_size; 
+
+        char *buffer = malloc(fsize + 1); 
+        if(!buffer){
+                perror("Failed to allocate buffer when reading config"); 
+                fclose(file); 
+                return 1; 
+        }
+
+        size_t bytes_read = fread(buffer, 1, fsize, file); 
+        if(bytes_read != (size_t)fsize){
+                perror("Error reading config file"); 
+                free(buffer); 
+                fclose(file); 
+                return 1; 
+        }
+        buffer[fsize] = '\0'; 
+        fclose(file); 
+        
+        cJSON *root = cJSON_Parse(buffer); 
+        if(root == NULL){
+                const char *error_ptr = cJSON_GetErrorPtr(); 
+                if(error_ptr != NULL){
+                        fprintf(stderr, "Error before: %s\n", error_ptr); 
+                }else{
+                        printf("Error: Unable to parse JSON file (no error ptr).\n");
+                }
+                free(buffer); 
+                return 1; 
+        }
+        
+        free(buffer);
+        cJSON *tmp = *obj;
+        *obj = root; 
+        cJSON_Delete(tmp);
+        
+
+
+        return 0; 
+}
+
 
 int readConfig(cJSON **obj){
         const char *filename = "./config.json";
@@ -132,7 +217,10 @@ int readConfig(cJSON **obj){
         }
         
         free(buffer);
+
+        cJSON *tmp = *obj;
         *obj = root; 
+        cJSON_Delete(tmp);
         
         return 0; 
         

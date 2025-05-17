@@ -2,6 +2,6 @@
 	"remote_addr":	"localhost",
 	"remote_port":	"8080",
 	"port":	"8080",
-	"write_files":	false,
-	"backup_location":	"./backup/"
+	"write_files":	true,
+	"backup_location":	"./backup/test.tar.zst"
 }

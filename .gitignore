@@ -53,3 +53,10 @@ dkms.conf
 database.db
 .vscode/launch.json
 .vscode/launch.json
+
+
+# Testing config 
+test.json
+
+# Backup Files
+*.tar.zst

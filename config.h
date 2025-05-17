@@ -27,6 +27,19 @@
 int initConfig();
 
 
+/*
+ * init a custom config for custom configuration files
+*/
+
+int init_custom_config(const char *path);
+
+
+/* 
+ * Read a custom config file 
+*/
+int readCustomConfig(const char *path, cJSON **obj);
+
+
 /* 
  * If the config file doesn't exist create it
 */
